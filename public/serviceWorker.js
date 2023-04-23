@@ -2,6 +2,9 @@ let CACHE_NAME = 'my-cache-v1';
 const urlsToCache = [
     '/',
     '/index.html',
+    '/manifest.json',
+    '/favicon.png',
+    '/main.js'
 ];
 
 self.addEventListener('install', function(event) {
