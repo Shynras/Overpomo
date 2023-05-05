@@ -1,5 +1,15 @@
-$color: red;
+$color: blue;
 
 h1 {
   color: $color;
+}
+
+.clock {
+  display: block;
+  height: 100px;
+  width: 100px;
+  margin: auto;
+  background-color: red;
+  border: none;
+  border-radius: 50%;
 }
