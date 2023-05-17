@@ -1,15 +1,17 @@
-$color: blue;
+$timer-color: blue;
 
 h1 {
-  color: $color;
+  color: $timer-color;
 }
 
 .clock {
   display: block;
-  height: 100px;
-  width: 100px;
+  height: 250px;
+  width: 250px;
   margin: auto;
   background-color: red;
   border: none;
   border-radius: 50%;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 3em;
 }

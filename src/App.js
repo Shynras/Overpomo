@@ -1,8 +1,6 @@
-import React from "react";
+import React, {useState} from "react";
+import Timer from "./Timer.js";
 
-const Button = (props) => {
-    return <button type="button" className={props.className}>Pomodoro</button>;
-};
 
 const App = () =>{
     // app returns all the components needed to make the app
@@ -16,7 +14,7 @@ const App = () =>{
 
     return ( 
         <>
-            <Button className="clock">Start</Button>
+            <Timer className="clock"></Timer>
             <h1>
                 Hello world! I am using React
             </h1>
