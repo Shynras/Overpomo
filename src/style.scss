@@ -1,17 +1,37 @@
+@import url('https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300&display=swap');
+
 $timer-color: blue;
 
 h1 {
   color: $timer-color;
 }
 
-.clock {
+.basicTimer {
   display: block;
   height: 250px;
   width: 250px;
   margin: auto;
-  background-color: red;
-  border: none;
+  margin-top: 20%;
+  border: 5px solid red;
   border-radius: 50%;
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 3em;
+  font-family: 'Josefin Sans', sans-serif;
+  font-size: 4em;
+  background-color: white;
+
+  &.runningTimer {
+    border-color: green;
+  }
+  
+  &.bonusTimer {
+    border-color: blue;
+  }
+  
+  &.pausedTimer {
+    border-color: red;
+  }
 }
+
+.basicTimer:hover {
+  background-color: lightgray;
+}
+

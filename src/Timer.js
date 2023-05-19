@@ -1,37 +1,36 @@
-import React, {useState, useRef, useEffect} from "react";
+import React, {useState, useRef} from "react";
 
-
-const Timer = (props) => {
-    let [s, m, bs, bm] = [5, 0, 0, 0];
+const Timer = ({defaultMinutes}) => {
     const status = {paused: "PAUSED", running: "RUNNING", bonus: "BONUS"};
     const [phase, setPhase] = useState(status.paused);
-    const [seconds, setSeconds] = useState(s);
-    const [minutes, setMinutes] = useState(m);
-    const [bonusSeconds, setBonusSeconds] = useState(bs);
-    const [bonusMinutes, setBonusMinutes] = useState(bm);
+    const [currentSeconds, setCurrentSeconds] = useState(0);
+    const [currentMinutes, setCurrentMinutes] = useState(defaultMinutes);
+    const [bonusSeconds, setBonusSeconds] = useState(0);
+    const [bonusMinutes, setBonusMinutes] = useState(0);
     const interval = useRef();
 
     const handleStyle = () => {
+        let timerStyle;
         if (phase === status.running) {
-            return {backgroundColor: "green"};
+            timerStyle = "runningTimer";
         } else if (phase === status.bonus) {
-            return {backgroundColor: "blue"};
+            timerStyle = "bonusTimer";
         } else {
-            return {backgroundColor: "red"};
+            timerStyle = "pausedTimer";
         }
+        return `basicTimer ${timerStyle}`;
     };
 
     const handleClick = () => {
-        // State is asynchronous so I use "p" instead of "phase" inside setInterval
+        // State is asynchronous so I use "p" instead of "phase" to run the logic inside setInterval
         // I still need "phase" to re-render the timer with styles for different phases
         let p;
-
         const workTime = () => {
             if (p === status.running) {
-                setSeconds(seconds => {
-                    if (seconds === 0) {
-                        if (minutes > 0) {
-                            setMinutes(minutes => minutes - 1);
+                setCurrentSeconds(s => {
+                    if (s === 0) {
+                        if (currentMinutes > 0) {
+                            setCurrentMinutes(m => m - 1);
                             return 59;
                         } else {
                             p = status.bonus;
@@ -40,7 +39,7 @@ const Timer = (props) => {
                             return 0;
                         }
                     } else {
-                        return seconds - 1;
+                        return s - 1;
                     }
                 });
             } else if (p === status.bonus) {
@@ -54,7 +53,7 @@ const Timer = (props) => {
                 });
             }
         };
-
+        
         if (phase === status.paused) {     
             p = status.running; 
             setPhase(p);
@@ -62,18 +61,18 @@ const Timer = (props) => {
         } else {
             p = status.paused;
             setPhase(p);
-            setSeconds(s);
-            setMinutes(m);
-            setBonusSeconds(bs);
-            setBonusMinutes(bm); 
+            setCurrentSeconds(0);
+            setCurrentMinutes(defaultMinutes);
+            setBonusSeconds(0);
+            setBonusMinutes(0); 
             clearInterval(interval.current);
         }
     };
 
     const handleResult = () => {
         if (phase !== status.bonus) {
-            return minutes.toLocaleString("en-us", {minimumIntegerDigits : 2}) + " : " +
-                seconds.toLocaleString("en-us", {minimumIntegerDigits: 2});
+            return currentMinutes.toLocaleString("en-us", {minimumIntegerDigits : 2}) + " : " +
+                currentSeconds.toLocaleString("en-us", {minimumIntegerDigits: 2});
         } else {
             return bonusMinutes.toLocaleString("en-us", {minimumIntegerDigits : 2}) + " : " +
                 bonusSeconds.toLocaleString("en-us", {minimumIntegerDigits: 2});
@@ -83,8 +82,7 @@ const Timer = (props) => {
     return (
         <button 
             type="button" 
-            className={props.className} 
-            style={handleStyle()} 
+            className={handleStyle()}
             onClick={handleClick}>
             {handleResult()}
         </button>
