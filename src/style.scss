@@ -29,6 +29,10 @@ h1 {
   &.pausedTimer {
     border-color: red;
   }
+
+  &.breakTimer {
+    border-color: purple;
+  }
 }
 
 .basicTimer:hover {
