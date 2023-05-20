@@ -6,15 +6,17 @@ const Settings = ({defaultMinutes, setDefaultMinutes,
 
     return (
         <>
-            <form>
-                <input type="number" value={defaultMinutes} 
-                    onChange={(e) => setDefaultMinutes(Number(e.target.value))}></input>
-                <input type="number" value={breakBonus} 
-                    onChange={(e) => setBreakBonus(Number(e.target.value))}></input>
-                <input type="number" value={bonusRatio} 
-                    onChange={(e) => setBonusRatio(Number(e.target.value))}></input>
+            <form className="settings">
+                <label htmlFor="minutes">Work Time</label>
+                <input type="number" id="minutes" value={defaultMinutes} 
+                    onChange={(e) => setDefaultMinutes(Number(e.target.value))}></input><br></br>
+                <label htmlFor="bonus">Break</label>
+                <input type="number" id="bonus" value={breakBonus} 
+                    onChange={(e) => setBreakBonus(Number(e.target.value))}></input><br></br>
+                <label htmlFor="ratio">Overtime Ratio</label>
+                <input type="number" id="ratio" value={bonusRatio} 
+                    onChange={(e) => setBonusRatio(Number(e.target.value))}></input><br></br>
             </form>
-            <p>{defaultMinutes}</p>
         </>
     );
 }
