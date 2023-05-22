@@ -18,7 +18,8 @@ const App = () =>{
                 bonusRatio={bonusRatio}>
             </Timer>
             <div className="bottom">
-                <Nav setActive={setActive}>
+                <Nav active={active}
+                    setActive={setActive}>
                 </Nav>
                 {
                     active ? <Settings defaultMinutes={defaultMinutes}

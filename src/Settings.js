@@ -5,19 +5,27 @@ const Settings = ({defaultMinutes, setDefaultMinutes,
     bonusRatio, setBonusRatio}) => {
 
     return (
-        <>
-            <form className="settings">
-                <label htmlFor="minutes">Work Time</label>
-                <input type="number" id="minutes" value={defaultMinutes} 
-                    onChange={(e) => setDefaultMinutes(Number(e.target.value))}></input><br></br>
-                <label htmlFor="bonus">Break</label>
-                <input type="number" id="bonus" value={breakBonus} 
-                    onChange={(e) => setBreakBonus(Number(e.target.value))}></input><br></br>
-                <label htmlFor="ratio">Overtime Ratio</label>
-                <input type="number" id="ratio" value={bonusRatio} 
-                    onChange={(e) => setBonusRatio(Number(e.target.value))}></input><br></br>
-            </form>
-        </>
+        <form className="settings">
+            <table>     
+                <tbody>
+                    <tr>             
+                        <td><label htmlFor="minutes">Work Time:</label></td>
+                        <td><input type="number" id="minutes" value={defaultMinutes} 
+                            onChange={(e) => setDefaultMinutes(Number(e.target.value))}></input></td>
+                    </tr>
+                    <tr>
+                        <td><label htmlFor="bonus">Break:</label></td>
+                        <td><input type="number" id="bonus" value={breakBonus} 
+                            onChange={(e) => setBreakBonus(Number(e.target.value))}></input></td>
+                    </tr>
+                    <tr>
+                        <td><label htmlFor="ratio">Overtime:</label></td>
+                        <td><input type="number" id="ratio" value={bonusRatio} 
+                            onChange={(e) => setBonusRatio(Number(e.target.value))}></input></td>
+                    </tr>
+                </tbody>
+            </table>
+        </form>
     );
 }
 
