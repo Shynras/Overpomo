@@ -27,6 +27,7 @@ const App = () =>{
                 {
                     active ? <Settings defaultMinutes={defaultMinutes}
                         setDefaultMinutes={setDefaultMinutes}
+                        setCurrentMinutes={setCurrentMinutes}
                         breakBonus={breakBonus}
                         setBreakBonus={setBreakBonus}
                         overtimeRatio={overtimeRatio}

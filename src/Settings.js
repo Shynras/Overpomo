@@ -1,8 +1,12 @@
-import React from "react";
+import React, {useEffect} from "react";
 
 const Settings = ({defaultMinutes, setDefaultMinutes, 
+    setCurrentMinutes, 
     breakBonus, setBreakBonus, 
     overtimeRatio, setOvertimeRatio}) => {
+    useEffect(() => {
+        setCurrentMinutes(defaultMinutes);
+    }, [defaultMinutes]);
 
     return (
         <form className="settings">
