@@ -2,7 +2,7 @@ import React from "react";
 
 const Settings = ({defaultMinutes, setDefaultMinutes, 
     breakBonus, setBreakBonus, 
-    bonusRatio, setBonusRatio}) => {
+    overtimeRatio, setOvertimeRatio}) => {
 
     return (
         <form className="settings">
@@ -20,8 +20,8 @@ const Settings = ({defaultMinutes, setDefaultMinutes,
                     </tr>
                     <tr>
                         <td><label htmlFor="ratio">Overtime:</label></td>
-                        <td><input type="number" id="ratio" value={bonusRatio} 
-                            onChange={(e) => setBonusRatio(Number(e.target.value))}></input></td>
+                        <td><input type="number" id="ratio" value={overtimeRatio} 
+                            onChange={(e) => setOvertimeRatio(Number(e.target.value))}></input></td>
                     </tr>
                 </tbody>
             </table>

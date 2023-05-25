@@ -27,14 +27,22 @@ body {
   margin-top: 10%;
   border: 5px solid red;
   border-radius: 50%;
-  font-size: 4em;
+
   background-color: white;
+
+  .phase {
+    font-size: 2em;
+  }
+
+  .time {
+    font-size: 4em;
+  }
 
   &.runningTimer {
     border-color: green;
   }
   
-  &.bonusTimer {
+  &.overtimeTimer {
     border-color: blue;
   }
   

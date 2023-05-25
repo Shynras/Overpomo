@@ -6,16 +6,19 @@ import Nav from "./Nav.js";
 
 const App = () =>{
     const [defaultMinutes, setDefaultMinutes] = useState(0);
+    const [currentMinutes, setCurrentMinutes] = useState(defaultMinutes);
     const [active, setActive] = useState(false);
     const [breakBonus, setBreakBonus] = useState(5);
-    const [bonusRatio, setBonusRatio] = useState(0.2);
+    const [overtimeRatio, setOvertimeRatio] = useState(0.2);
 
     return ( 
         <>
             <h1>Pomodoro Timer</h1>
-            <Timer defaultMinutes={defaultMinutes}
+            <Timer currentMinutes={currentMinutes}
+                setCurrentMinutes={setCurrentMinutes} 
+                defaultMinutes={defaultMinutes}
                 breakBonus={breakBonus}
-                bonusRatio={bonusRatio}>
+                overtimeRatio={overtimeRatio}>
             </Timer>
             <div className="bottom">
                 <Nav active={active}
@@ -26,8 +29,8 @@ const App = () =>{
                         setDefaultMinutes={setDefaultMinutes}
                         breakBonus={breakBonus}
                         setBreakBonus={setBreakBonus}
-                        bonusRatio={bonusRatio}
-                        setBonusRatio={setBonusRatio}>
+                        overtimeRatio={overtimeRatio}
+                        setOvertimeRatio={setOvertimeRatio}>
                     </Settings> :
                     <History></History>
                 } 

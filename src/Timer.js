@@ -1,22 +1,29 @@
-import React, {useState, useRef} from "react";
+import React, {useState, useRef, useEffect} from "react";
 
-const Timer = ({defaultMinutes, breakBonus, bonusRatio}) => {
-    const status = {paused: "PAUSED", running: "RUNNING", bonus: "BONUS", break: "BREAK"};
+const Timer = ({currentMinutes, setCurrentMinutes, defaultMinutes, breakBonus, overtimeRatio}) => {
+    const status = {paused: "PAUSED", running: "RUNNING", overtime: "OVERTIME", break: "BREAK"};
     const [phase, setPhase] = useState(status.paused);
     const [currentSeconds, setCurrentSeconds] = useState(5);
-    const [currentMinutes, setCurrentMinutes] = useState(defaultMinutes);
-    const [bonusSeconds, setBonusSeconds] = useState(0);
-    const [bonusMinutes, setBonusMinutes] = useState(0);
+    const [overtimeSeconds, setOvertimeSeconds] = useState(0);
+    const [overtimeMinutes, setOvertimeMinutes] = useState(0);
     const [breakSeconds, setBreakSeconds] = useState(0);
     const [breakMinutes, setBreakMinutes] = useState(0);
     const interval = useRef();
+
+    // setCurrentMinutes is a prop from App, so I use it separately from other setters
+    // since it'll try to render App while rendering Timer. useEffect prevents that.
+    useEffect(()=>{
+        if (currentSeconds === 59) {
+            setCurrentMinutes(m => m - 1);
+        }
+    }, [currentSeconds]);
 
     const handleStyle = () => {
         let timerStyle;
         if (phase === status.running) {
             timerStyle = "runningTimer";
-        } else if (phase === status.bonus) {
-            timerStyle = "bonusTimer";
+        } else if (phase === status.overtime) {
+            timerStyle = "overtimeTimer";
         } else if (phase === status.paused) {
             timerStyle = "pausedTimer";
         } else {
@@ -29,8 +36,8 @@ const Timer = ({defaultMinutes, breakBonus, bonusRatio}) => {
         setPhase(status.paused);
         setCurrentSeconds(5);
         setCurrentMinutes(defaultMinutes);
-        setBonusSeconds(0);
-        setBonusMinutes(0); 
+        setOvertimeSeconds(0);
+        setOvertimeMinutes(0); 
         clearInterval(interval.current);
     };
     
@@ -43,12 +50,11 @@ const Timer = ({defaultMinutes, breakBonus, bonusRatio}) => {
                 setCurrentSeconds(s => {
                     if (s === 0) {
                         if (currentMinutes > 0) {
-                            setCurrentMinutes(m => m - 1);
                             return 59;
                         } else {
-                            p = status.bonus;
+                            p = status.overtime;
                             setPhase(p);
-                            setBonusSeconds(1);
+                            setOvertimeSeconds(1);
                             setBreakMinutes(brM => brM + breakBonus);
                             return 0;
                         }
@@ -56,22 +62,22 @@ const Timer = ({defaultMinutes, breakBonus, bonusRatio}) => {
                         return s - 1;
                     }
                 });
-            } else if (p === status.bonus) {
-                setBonusSeconds(boS => {    
+            } else if (p === status.overtime) {
+                setOvertimeSeconds(boS => {    
                     if (boS === 59) {
-                        setBonusMinutes(boM => boM + 1);
+                        setOvertimeMinutes(boM => boM + 1);
                         return 0;
                     } else {
                         return boS + 1;
                     }
                 });
                 setBreakSeconds(brS => {
-                    let maxSeconds = brS + bonusRatio;
+                    let maxSeconds = brS + overtimeRatio;
                     if (maxSeconds > 60) {
                         setBreakMinutes(brM => brM + 1);
                         return maxSeconds - 60;
                     } else {
-                        return brS + bonusRatio;
+                        return brS + overtimeRatio;
                     }
                 });
             } 
@@ -103,7 +109,7 @@ const Timer = ({defaultMinutes, breakBonus, bonusRatio}) => {
             clearInterval(interval.current);
             p = status.paused;
             setPhase(p);
-        } else if (phase === status.bonus) {
+        } else if (phase === status.overtime) {
             clearInterval(interval.current);
             p = status.break;
             setPhase(p);
@@ -117,9 +123,9 @@ const Timer = ({defaultMinutes, breakBonus, bonusRatio}) => {
         if (phase === status.running || phase === status.paused) {
             return currentMinutes.toLocaleString("en-us", {minimumIntegerDigits : 2}) + " : " +
                 currentSeconds.toLocaleString("en-us", {minimumIntegerDigits: 2});
-        } else if (phase === status.bonus) {
-            return bonusMinutes.toLocaleString("en-us", {minimumIntegerDigits : 2}) + " : " +
-                bonusSeconds.toLocaleString("en-us", {minimumIntegerDigits: 2});
+        } else if (phase === status.overtime) {
+            return overtimeMinutes.toLocaleString("en-us", {minimumIntegerDigits : 2}) + " : " +
+                overtimeSeconds.toLocaleString("en-us", {minimumIntegerDigits: 2});
         } else if (phase === status.break) {
             return breakMinutes.toLocaleString("en-us", {minimumIntegerDigits : 2}) + " : " +
                 Math.floor(breakSeconds).toLocaleString("en-us", {minimumIntegerDigits: 2});
@@ -131,7 +137,8 @@ const Timer = ({defaultMinutes, breakBonus, bonusRatio}) => {
             type="button" 
             className={handleStyle()}
             onClick={handleClick}>
-            {handleResult()}
+                <span className="phase">{phase}</span><br></br>
+                <span className="time">{handleResult()}</span>
         </button>
     );
 };
