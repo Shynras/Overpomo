@@ -136,9 +136,10 @@ const Timer = ({currentMinutes, setCurrentMinutes, defaultMinutes, breakBonus, o
         <button 
             type="button" 
             className={handleStyle()}
-            onClick={handleClick}>
-                <span className="phase">{phase}</span><br></br>
-                <span className="time">{handleResult()}</span>
+            onClick={handleClick}
+        >
+            <span className="phase">{phase}</span><br />
+            <span className="time">{handleResult()}</span>
         </button>
     );
 };

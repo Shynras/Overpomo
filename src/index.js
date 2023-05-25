@@ -1,7 +1,9 @@
 import React from 'react';
 import  { createRoot }  from 'react-dom/client';
-import './style.scss';
 import App from './App.js';
+import './style.scss';
+import 'purecss';
+import 'normalize.css';
 
 const container = document.getElementById('root');
 const root = createRoot(container);

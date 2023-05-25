@@ -18,12 +18,10 @@ const App = () =>{
                 setCurrentMinutes={setCurrentMinutes} 
                 defaultMinutes={defaultMinutes}
                 breakBonus={breakBonus}
-                overtimeRatio={overtimeRatio}>
-            </Timer>
+                overtimeRatio={overtimeRatio} />
             <div className="bottom">
                 <Nav active={active}
-                    setActive={setActive}>
-                </Nav>
+                    setActive={setActive} />
                 {
                     active ? <Settings defaultMinutes={defaultMinutes}
                         setDefaultMinutes={setDefaultMinutes}
@@ -31,9 +29,8 @@ const App = () =>{
                         breakBonus={breakBonus}
                         setBreakBonus={setBreakBonus}
                         overtimeRatio={overtimeRatio}
-                        setOvertimeRatio={setOvertimeRatio}>
-                    </Settings> :
-                    <History></History>
+                        setOvertimeRatio={setOvertimeRatio} />
+                    : <History />
                 } 
             </div>
         </>

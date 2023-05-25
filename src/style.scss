@@ -66,6 +66,16 @@ body {
     background-color: lightgray;
     border: 1px solid black;
     border-top: none;
+    height: 300px;
+
+    .graph {
+      margin: auto;
+      margin-top: 10px;
+      width: 90%;
+      height: 80%;
+      background-color: darkblue;
+      border: 1px solid black;
+    }
   }
 
   .settings {
