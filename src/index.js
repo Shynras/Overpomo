@@ -3,7 +3,6 @@ import  { createRoot }  from 'react-dom/client';
 import App from './App.js';
 import './style.scss';
 import 'purecss';
-import 'normalize.css';
 
 const container = document.getElementById('root');
 const root = createRoot(container);
