@@ -1,34 +1,42 @@
-import React, {useEffect} from "react";
+import React, {useState, useEffect} from "react";
 
 const Settings = ({defaultMinutes, setDefaultMinutes, 
     setCurrentMinutes, 
     breakBonus, setBreakBonus, 
     overtimeRatio, setOvertimeRatio}) => {
+    
     useEffect(() => {
         setCurrentMinutes(defaultMinutes);
     }, [defaultMinutes]);
 
     return (
-        <form className="settings">
-            <table>     
-                <tbody>
-                    <tr>             
-                        <td><label htmlFor="minutes">Work Time:</label></td>
-                        <td><input type="number" id="minutes" value={defaultMinutes} 
-                            onChange={(e) => setDefaultMinutes(Number(e.target.value))}></input></td>
-                    </tr>
-                    <tr>
-                        <td><label htmlFor="bonus">Break:</label></td>
-                        <td><input type="number" id="bonus" value={breakBonus} 
-                            onChange={(e) => setBreakBonus(Number(e.target.value))}></input></td>
-                    </tr>
-                    <tr>
-                        <td><label htmlFor="ratio">Overtime:</label></td>
-                        <td><input type="number" id="ratio" value={overtimeRatio} 
-                            onChange={(e) => setOvertimeRatio(Number(e.target.value))}></input></td>
-                    </tr>
-                </tbody>
-            </table>
+        <form className="pure-form pure-form-aligned">
+            <div className="pure-control-group">          
+                <label htmlFor="minutes">Work Time:</label>
+                <div className="pure-u-1-6">
+                    <input type="text" id="minutes" 
+                        className="pure-input-1" 
+                        value={defaultMinutes || ""} 
+                        onChange={e => Number(e.target.value) >= 0 && 
+                            setDefaultMinutes(Number(e.target.value))} />
+                </div>
+            </div>  
+            <div className="pure-control-group">
+                <label htmlFor="bonus">Break:</label>
+                <div className="pure-u-1-6">
+                    <input type="text" id="bonus" className="pure-input-1" value={breakBonus || ""} 
+                        onChange={e => Number(e.target.value) >= 0 &&
+                            setBreakBonus(Number(e.target.value))} />
+                </div>
+            </div>
+            <div className="pure-control-group">
+                <label htmlFor="ratio">Overtime:</label>
+                <div className="pure-u-1-6">
+                    <input type="text" id="ratio" className="pure-input-1" value={overtimeRatio || ""} 
+                        onChange={e => Number(e.target.value) >= 0 &&
+                            setOvertimeRatio(Number(e.target.value))} />
+                </div>
+            </div>
         </form>
     );
 }

@@ -2,10 +2,10 @@ import React from "react";
 
 const Nav = ({active, setActive}) => {
     return (
-        <div className="nav">
-            <button className={!active ? "buttonOn" : undefined} 
+        <div className="pure-g">
+            <button className={`pure-u-1-2 pure-button ${!active ? "pure-button-active" : ""}`} 
                 onClick={()=>{setActive(false)}}>History</button>
-            <button className={active ? "buttonOn" : undefined} 
+            <button className={`pure-u-1-2 pure-button ${active ? "pure-button-active" : ""}`}
                 onClick={()=>{setActive(true)}}>Settings</button>
         </div>
     );

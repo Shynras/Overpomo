@@ -4,19 +4,12 @@ body {
   font-family: 'Josefin Sans', sans-serif;
 }
 
-@media screen and (min-width: 320px) {
-  .bottom {
-    width: 90%;
-  }  
+input {
+  text-align: right;
 }
 
-@media screen and (min-width: 480px) {
-  .bottom {
-    width: 70%;
-  }
-  label {
-    margin-left: 15%;
-  }
+.center {
+  justify-content: center;
 }
 
 .basicTimer {
@@ -54,70 +47,7 @@ body {
     border-color: purple;
   }
 }
+
 .basicTimer:hover {
   background-color: lightgray;
-}
-
-.bottom {
-  margin: auto;
-  margin-top: 15%;
-
-  .history {
-    background-color: lightgray;
-    border: 1px solid black;
-    border-top: none;
-    height: 300px;
-
-    .graph {
-      margin: auto;
-      margin-top: 10px;
-      width: 90%;
-      height: 80%;
-      background-color: darkblue;
-      border: 1px solid black;
-    }
-  }
-
-  .settings {
-    padding: 0.5em;
-    background-color: lightgray;
-    border: 1px solid black;
-    border-top: none;
-
-    table {
-      width: 100%;
-
-      td {
-        width: 50%;
-
-        label {
-          font-size: 1.5em;
-        }
-
-        input {
-          margin: 0.5em;
-          width: 50px;
-          margin-left: 40%;
-          font-size: 1.5em;
-          text-align: right;
-        }
-      }
-    }
-  }
-
-  .nav {
-    button {
-      height: 50px;
-      width: 50%;
-      margin: auto;
-      background-color: gray;
-      border: 1px solid black;
-      font-size: 1.5em;
-  
-      &.buttonOn {
-        border-bottom: 1px solid lightgray;
-        background-color: lightgray;
-      }
-    }
-  }
 }

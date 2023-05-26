@@ -19,7 +19,8 @@ const App = () =>{
                 defaultMinutes={defaultMinutes}
                 breakBonus={breakBonus}
                 overtimeRatio={overtimeRatio} />
-            <div className="bottom">
+            <div className="pure-u-1-12 pure-u-md-1-4" />
+            <div className="pure-g pure-u-20-24 pure-u-md-1-2" style={{backgroundColor:"red"}}>
                 <Nav active={active}
                     setActive={setActive} />
                 {
@@ -33,6 +34,7 @@ const App = () =>{
                     : <History />
                 } 
             </div>
+            <div className="pure-u-1-12 pure-u-md-1-4" />
         </>
     )
 }
