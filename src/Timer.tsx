@@ -1,6 +1,20 @@
 import React, {useState, useRef, useEffect} from "react";
 
-const Timer = ({currentMinutes, setCurrentMinutes, defaultMinutes, breakBonus, overtimeRatio}) => {
+type TimerTypes = {
+    currentMinutes : number, 
+    setCurrentMinutes: React.Dispatch<React.SetStateAction<number>>,
+    defaultMinutes : number, 
+    breakBonus : number, 
+    overtimeRatio : number
+}
+
+const Timer = ({
+    currentMinutes, 
+    setCurrentMinutes, 
+    defaultMinutes, 
+    breakBonus, 
+    overtimeRatio} : TimerTypes) => {
+
     const status = {paused: "PAUSED", running: "RUNNING", overtime: "OVERTIME", break: "BREAK"};
     const [phase, setPhase] = useState(status.paused);
     const [currentSeconds, setCurrentSeconds] = useState(5);
@@ -8,7 +22,7 @@ const Timer = ({currentMinutes, setCurrentMinutes, defaultMinutes, breakBonus, o
     const [overtimeMinutes, setOvertimeMinutes] = useState(0);
     const [breakSeconds, setBreakSeconds] = useState(0);
     const [breakMinutes, setBreakMinutes] = useState(0);
-    const interval = useRef();
+    const interval = useRef<any>(null);
 
     // setCurrentMinutes is a prop from App, so I use it separately from other setters
     // since it'll try to render App while rendering Timer. useEffect prevents that.
@@ -44,7 +58,7 @@ const Timer = ({currentMinutes, setCurrentMinutes, defaultMinutes, breakBonus, o
     const handleClick = () => {
         // State is asynchronous so I use "p" instead of "phase" to run the logic inside setInterval
         // I still need "phase" to re-render the timer with styles for different phases
-        let p;
+        let p:string;
         const workTime = () => {
             if (p === status.running) {
                 setCurrentSeconds(s => {
@@ -105,6 +119,8 @@ const Timer = ({currentMinutes, setCurrentMinutes, defaultMinutes, breakBonus, o
             p = status.running; 
             setPhase(p);
             interval.current = setInterval(workTime, 1000);
+            console.log(typeof interval);
+            console.log(typeof interval.current);
         } else if (phase === status.running) {
             clearInterval(interval.current);
             p = status.paused;
@@ -136,12 +152,11 @@ const Timer = ({currentMinutes, setCurrentMinutes, defaultMinutes, breakBonus, o
         <button 
             type="button" 
             className={handleStyle()}
-            onClick={handleClick}
-        >
+            onClick={handleClick}>
             <span className="phase">{phase}</span><br />
             <span className="time">{handleResult()}</span>
         </button>
     );
 };
 
-export default Timer;
+export default Timer

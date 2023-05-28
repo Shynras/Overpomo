@@ -1,6 +1,11 @@
 import React from "react";
 
-const Nav = ({active, setActive}) => {
+type NavTypes = {
+    active: boolean,
+    setActive: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+const Nav = ({active, setActive} : NavTypes) => {
     return (
         <div className="pure-g">
             <button className={`pure-u-1-2 pure-button ${!active ? "pure-button-active" : ""}`} 

@@ -3,7 +3,7 @@ const path = require("path");
 
 module.exports={
     mode: "development", 
-    entry: "./src/index.jsx", 
+    entry: "./src/index.tsx", 
     output: {
         path: path.resolve(__dirname, "dist"),
         filename: "main.js"
@@ -17,7 +17,7 @@ module.exports={
         liveReload: true
     },
     resolve: {
-        extensions: ['.js','.jsx','.json'] 
+        extensions: ['.tsx', '.ts', '.js', '.jsx', '.json'] 
     },
     module:{
         rules: [
@@ -25,6 +25,11 @@ module.exports={
                 test: /\.(js|jsx)$/,
                 exclude: /node_modules/,
                 use: 'babel-loader'
+            },
+            {
+                test: /\.tsx?$/,
+                exclude: /node_modules/,
+                loader: 'ts-loader'
             },
             {
                 test: /\.(s[ac]ss|css)$/i,

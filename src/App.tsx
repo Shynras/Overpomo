@@ -1,8 +1,8 @@
 import React, {useState} from "react";
-import Timer from "./Timer.jsx";
-import Settings from "./Settings.jsx";
-import History from "./History.jsx";
-import Nav from "./Nav.jsx";
+import Timer from "./Timer";
+import Settings from "./Settings";
+import History from "./History";
+import Nav from "./Nav";
 
 const App = () =>{
     const [defaultMinutes, setDefaultMinutes] = useState(0);
