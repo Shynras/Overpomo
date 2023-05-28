@@ -22,7 +22,7 @@ const Timer = ({
     const [overtimeMinutes, setOvertimeMinutes] = useState(0);
     const [breakSeconds, setBreakSeconds] = useState(0);
     const [breakMinutes, setBreakMinutes] = useState(0);
-    const interval = useRef<any>(null);
+    const interval = useRef<number | null>(null);
 
     // setCurrentMinutes is a prop from App, so I use it separately from other setters
     // since it'll try to render App while rendering Timer. useEffect prevents that.
@@ -118,9 +118,7 @@ const Timer = ({
         if (phase === status.paused) {     
             p = status.running; 
             setPhase(p);
-            interval.current = setInterval(workTime, 1000);
-            console.log(typeof interval);
-            console.log(typeof interval.current);
+            interval.current = window.setInterval(workTime, 1000);
         } else if (phase === status.running) {
             clearInterval(interval.current);
             p = status.paused;
@@ -129,7 +127,7 @@ const Timer = ({
             clearInterval(interval.current);
             p = status.break;
             setPhase(p);
-            interval.current = setInterval(breakTime, 1000);
+            interval.current = window.setInterval(breakTime, 1000);
         } else {
             handleReset();
         }
