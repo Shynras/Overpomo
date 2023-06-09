@@ -35,15 +35,15 @@ const Timer = ({
     const handleStyle = () => {
         let timerStyle;
         if (phase === status.running) {
-            timerStyle = "runningTimer";
+            timerStyle = "running-timer";
         } else if (phase === status.overtime) {
-            timerStyle = "overtimeTimer";
+            timerStyle = "overtime-timer";
         } else if (phase === status.paused) {
-            timerStyle = "pausedTimer";
+            timerStyle = "paused-timer";
         } else {
-            timerStyle = "breakTimer";
+            timerStyle = "break-timer";
         }
-        return `basicTimer ${timerStyle}`;
+        return `pure-button timer-button ${timerStyle}`;
     };
 
     const handleReset = () => {

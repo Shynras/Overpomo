@@ -22,7 +22,8 @@ const App = () =>{
             <div style={{height: "50px"}} />
             <div className="pure-g">
                 <div className="pure-u-1-12 pure-u-md-1-4" />
-                <div className="pure-g pure-u-20-24 pure-u-md-1-2" style={{backgroundColor:"red"}}>
+                <div className="pure-g pure-u-20-24 pure-u-md-1-2" 
+                    style={{backgroundColor:"#333333", color: "#ffffff"}}>
                     <Nav active={active}
                         setActive={setActive} />
                     {
