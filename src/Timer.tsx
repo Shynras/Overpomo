@@ -23,6 +23,9 @@ const Timer = ({
     const [breakSeconds, setBreakSeconds] = useState(0);
     const [breakMinutes, setBreakMinutes] = useState(0);
     const interval = useRef<number | null>(null);
+    // variables for calculating time spent on work/break and save it
+    const workStart = useRef<Date | null>(null);
+    const breakStart = useRef<Date | null>(null);
 
     // setCurrentMinutes is a prop from App, so I use it separately from other setters
     // since it'll try to render App while rendering Timer. useEffect prevents that.
@@ -48,6 +51,8 @@ const Timer = ({
 
     const handleReset = () => {
         setPhase(status.paused);
+        const spentBreaking = new Date().getTime() - breakStart.current.getTime(); 
+        localStorage.setItem("spentBreaking", spentBreaking.toString())
         setCurrentSeconds(5);
         setCurrentMinutes(defaultMinutes);
         setOvertimeSeconds(0);
@@ -118,15 +123,21 @@ const Timer = ({
         if (phase === status.paused) {     
             p = status.running; 
             setPhase(p);
+            workStart.current = new Date();
             interval.current = window.setInterval(workTime, 1000);
         } else if (phase === status.running) {
             clearInterval(interval.current);
             p = status.paused;
             setPhase(p);
+            const spentWorking = ((new Date()).getTime() - workStart.current.getTime());
+            localStorage.setItem("spentWorking", spentWorking.toString());
         } else if (phase === status.overtime) {
             clearInterval(interval.current);
             p = status.break;
             setPhase(p);
+            const spentWorking = (new Date().getTime() - workStart.current.getTime());
+            localStorage.setItem("spentWorking", spentWorking.toString());
+            breakStart.current = new Date();
             interval.current = window.setInterval(breakTime, 1000);
         } else {
             handleReset();
