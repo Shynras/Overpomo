@@ -49,10 +49,15 @@ const Timer = ({
         return `pure-button timer-button ${timerStyle}`;
     };
 
+    const newTime = (key:string, timeStamp:Date) => {
+        let c = localStorage.getItem(key);
+        let timeDiff = new Date().getTime() - timeStamp.getTime();
+        localStorage.setItem(key, (Number(c) + timeDiff).toString());
+    };
+
     const handleReset = () => {
         setPhase(status.paused);
-        const spentBreaking = new Date().getTime() - breakStart.current.getTime(); 
-        localStorage.setItem("spentBreaking", spentBreaking.toString())
+        newTime("spentBreaking", breakStart.current);
         setCurrentSeconds(5);
         setCurrentMinutes(defaultMinutes);
         setOvertimeSeconds(0);
@@ -129,14 +134,12 @@ const Timer = ({
             clearInterval(interval.current);
             p = status.paused;
             setPhase(p);
-            const spentWorking = ((new Date()).getTime() - workStart.current.getTime());
-            localStorage.setItem("spentWorking", spentWorking.toString());
+            newTime("spentWorking", workStart.current);
         } else if (phase === status.overtime) {
             clearInterval(interval.current);
             p = status.break;
             setPhase(p);
-            const spentWorking = (new Date().getTime() - workStart.current.getTime());
-            localStorage.setItem("spentWorking", spentWorking.toString());
+            newTime("spentWorking", workStart.current);
             breakStart.current = new Date();
             interval.current = window.setInterval(breakTime, 1000);
         } else {
