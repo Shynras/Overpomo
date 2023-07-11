@@ -23,9 +23,7 @@ const Timer = ({
     const [breakSeconds, setBreakSeconds] = useState(0);
     const [breakMinutes, setBreakMinutes] = useState(0);
     const interval = useRef<number | null>(null);
-    // variables for calculating time spent on work/break and save it
-    const workStart = useRef<Date | null>(null);
-    const breakStart = useRef<Date | null>(null);
+    const timeStamp = useRef<Date | null>(null);
 
     // setCurrentMinutes is a prop from App, so I use it separately from other setters
     // since it'll try to render App while rendering Timer. useEffect prevents that.
@@ -49,15 +47,27 @@ const Timer = ({
         return `pure-button timer-button ${timerStyle}`;
     };
 
-    const newTime = (key:string, timeStamp:Date) => {
-        let c = localStorage.getItem(key);
-        let timeDiff = new Date().getTime() - timeStamp.getTime();
-        localStorage.setItem(key, (Number(c) + timeDiff).toString());
+    //get cached values for time spent working/pausing and update them
+    type Data = {
+        worked: number,
+        paused: number
+    }
+
+    const saveTime = (k:keyof Data) => {
+        const now = new Date();
+        const key = now.toLocaleDateString("en-US", {dateStyle:"short"});
+        const previousData = JSON.parse(localStorage.getItem(key));
+        const data:Data = {
+            worked: previousData?.worked ?? 0,
+            paused: previousData?.paused ?? 0
+        };
+        data[k] += now.getTime() - timeStamp.current.getTime();
+        localStorage.setItem(key, JSON.stringify(data));
     };
 
     const handleReset = () => {
         setPhase(status.paused);
-        newTime("spentBreaking", breakStart.current);
+        saveTime("paused");
         setCurrentSeconds(5);
         setCurrentMinutes(defaultMinutes);
         setOvertimeSeconds(0);
@@ -128,19 +138,19 @@ const Timer = ({
         if (phase === status.paused) {     
             p = status.running; 
             setPhase(p);
-            workStart.current = new Date();
+            timeStamp.current = new Date();
             interval.current = window.setInterval(workTime, 1000);
         } else if (phase === status.running) {
             clearInterval(interval.current);
             p = status.paused;
             setPhase(p);
-            newTime("spentWorking", workStart.current);
+            saveTime("worked");
         } else if (phase === status.overtime) {
             clearInterval(interval.current);
             p = status.break;
             setPhase(p);
-            newTime("spentWorking", workStart.current);
-            breakStart.current = new Date();
+            saveTime("worked");
+            timeStamp.current = new Date();
             interval.current = window.setInterval(breakTime, 1000);
         } else {
             handleReset();
