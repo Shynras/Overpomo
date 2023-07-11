@@ -1,36 +1,41 @@
 import React, { ReactElement } from "react";
 
+type Data = {
+    worked: number,
+    paused: number
+}
 
 const History = () => {
-    const lastSevenDays:Array<[Date, number, number]> = [
-        [new Date(2023, 7, 8), 4, 1],
-        [new Date(2023, 7, 7), 0, 0],
-        [new Date(2023, 7, 6), 1, 0.15],
-        [new Date(2023, 7, 5), 11, 3],
-        [new Date(2023, 7, 4), 5, 1.2],
-        [new Date(2023, 7, 3), 7, 2],
-        [new Date(2023, 7, 2), 1, 2],
-    ]
+    const lastSevenDays = () => {
+        const today = new Date();
+        const arr = []; 
+        for (let i = 1; i <= 7; i++) {
+            const key = today.toLocaleDateString("en-US", {dateStyle:"short"});
+            arr.push(JSON.parse(localStorage.getItem(key)));
+            today.setDate(today.getDate() - i);
+        }
+        return arr;
+    };
 
-    const generateDay = (k:number, w:number, b:number) => {
+    const generateDay = (k:number, data:Data) => {
         return (
             <div className="day pure-u-1-8" key={k}>
-                <div className="break" style={{height:b}} />
-                <div className="work" style={{height:w}} />
+                <div className="break" style={{height: data?.paused ?? 0}} />
+                <div className="work" style={{height: data?.worked ?? 0}} />
             </div>
         );
     };
-    const generateWeek = () => {
+    const generateWeek = (arr:Data[]) => {
         const week:ReactElement[] = [];
         for (let k = 0; k < 7; k++) {
-            week.push(generateDay(k, lastSevenDays[k][1] * 10, lastSevenDays[k][2] * 10))
+            week.push(generateDay(k, arr[k]));
         }
         return week;
     };
 
     return (
         <div className="pure-g">
-            {generateWeek()}
+            {generateWeek(lastSevenDays())}
         </div>
     );
 }
