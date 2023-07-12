@@ -10,6 +10,7 @@ const App = () =>{
     const [active, setActive] = useState(false);
     const [breakBonus, setBreakBonus] = useState(5);
     const [overtimeRatio, setOvertimeRatio] = useState(0.2);
+    const [refresh, setRefresh] = useState(0);
 
     return ( 
         <>
@@ -18,7 +19,8 @@ const App = () =>{
                 setCurrentMinutes={setCurrentMinutes} 
                 defaultMinutes={defaultMinutes}
                 breakBonus={breakBonus}
-                overtimeRatio={overtimeRatio} />
+                overtimeRatio={overtimeRatio}
+                setRefresh={setRefresh} />
             <div style={{height: "50px"}} />
             <div className="pure-g">
                 <div className="pure-u-1-12 pure-u-md-1-4" />
@@ -34,7 +36,8 @@ const App = () =>{
                             setBreakBonus={setBreakBonus}
                             overtimeRatio={overtimeRatio}
                             setOvertimeRatio={setOvertimeRatio} />
-                        : <History />
+                        : <History refresh={refresh}
+                            setRefresh={setRefresh} />
                     } 
                 </div>
                 <div className="pure-u-1-12 pure-u-md-1-4" />

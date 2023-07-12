@@ -1,34 +1,50 @@
-import React, { ReactElement } from "react";
+import React, {useEffect} from "react";
 
 type Data = {
     worked: number,
     paused: number
 }
 
-const History = () => {
+type Refresh = {
+    refresh: number
+    setRefresh: React.Dispatch<React.SetStateAction<number>>
+}
+
+const History = ({refresh, setRefresh}:Refresh) => {
+    //Timer creates new data, saves it in cache, ask History to refresh
+    useEffect(()=>{setRefresh(0)},[refresh]);
+
+    //retrieve and parse data from last 7 days from cache
     const lastSevenDays = () => {
         const today = new Date();
-        const arr = []; 
+        const data = []; 
         for (let i = 1; i <= 7; i++) {
             const key = today.toLocaleDateString("en-US", {dateStyle:"short"});
-            arr.push(JSON.parse(localStorage.getItem(key)));
-            today.setDate(today.getDate() - i);
+            data.push(JSON.parse(localStorage.getItem(key)));
+            today.setDate(today.getDate() - 1);
         }
-        return arr;
+        return data;
     };
 
-    const generateDay = (k:number, data:Data) => {
+    const generateDay = (k:number, worked:number, paused:number, hGraph:number) => {
         return (
-            <div className="day pure-u-1-8" key={k}>
-                <div className="break" style={{height: data?.paused ?? 0}} />
-                <div className="work" style={{height: data?.worked ?? 0}} />
+            <div className="day pure-u-1-8" key={k} style={{height: hGraph}}>
+                <div className="break" style={{height: paused}} />
+                <div className="work" style={{height: worked}} />
             </div>
         );
     };
-    const generateWeek = (arr:Data[]) => {
-        const week:ReactElement[] = [];
-        for (let k = 0; k < 7; k++) {
-            week.push(generateDay(k, arr[k]));
+
+    //takes last 7 days cache data, validates values, rescale data to fit graph
+    const generateWeek = (data:Data[]) => {
+        const hGraph = 200;
+        const week:React.ReactElement[] = [];
+        const maxWeekN = Math.max(...data.map(obj => (obj?.worked ?? 0) + (obj?.paused ?? 0)), 1);
+        const maxH = hGraph * 0.9;
+        for (let k = 6; k >= 0; k--) {
+            const worked = (data[k]?.worked ?? 0) * maxH / maxWeekN;
+            const paused = (data[k]?.paused ?? 0) * maxH / maxWeekN; 
+            week.push(generateDay(k, worked, paused, hGraph));
         }
         return week;
     };

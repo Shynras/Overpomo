@@ -2,10 +2,11 @@ import React, {useState, useRef, useEffect} from "react";
 
 type TimerTypes = {
     currentMinutes : number, 
-    setCurrentMinutes: React.Dispatch<React.SetStateAction<number>>,
+    setCurrentMinutes : React.Dispatch<React.SetStateAction<number>>,
     defaultMinutes : number, 
     breakBonus : number, 
-    overtimeRatio : number
+    overtimeRatio : number,
+    setRefresh : React.Dispatch<React.SetStateAction<number>>
 }
 
 const Timer = ({
@@ -13,7 +14,8 @@ const Timer = ({
     setCurrentMinutes, 
     defaultMinutes, 
     breakBonus, 
-    overtimeRatio} : TimerTypes) => {
+    overtimeRatio,
+    setRefresh} : TimerTypes) => {
 
     const status = {paused: "PAUSED", running: "RUNNING", overtime: "OVERTIME", break: "BREAK"};
     const [phase, setPhase] = useState(status.paused);
@@ -49,8 +51,8 @@ const Timer = ({
 
     //get cached values for time spent working/pausing and update them
     type Data = {
-        worked: number,
-        paused: number
+        worked : number,
+        paused : number
     }
 
     const saveTime = (k:keyof Data) => {
@@ -58,11 +60,12 @@ const Timer = ({
         const key = now.toLocaleDateString("en-US", {dateStyle:"short"});
         const previousData = JSON.parse(localStorage.getItem(key));
         const data:Data = {
-            worked: previousData?.worked ?? 0,
-            paused: previousData?.paused ?? 0
+            worked : previousData?.worked ?? 0,
+            paused : previousData?.paused ?? 0
         };
         data[k] += now.getTime() - timeStamp.current.getTime();
         localStorage.setItem(key, JSON.stringify(data));
+        setRefresh(1);
     };
 
     const handleReset = () => {
