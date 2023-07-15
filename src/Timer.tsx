@@ -1,176 +1,173 @@
-import React, {useState, useRef, useEffect} from "react";
+import React, {useState, useRef, MutableRefObject} from "react";
+
+type Data = {
+    work : number,
+    pause : number
+}
 
 type TimerTypes = {
-    currentMinutes : number, 
-    setCurrentMinutes : React.Dispatch<React.SetStateAction<number>>,
+    minutes : number, 
+    setMinutes : React.Dispatch<React.SetStateAction<number>>,
     defaultMinutes : number, 
-    breakBonus : number, 
+    bonus : number, 
     overtimeRatio : number,
-    setRefresh : React.Dispatch<React.SetStateAction<number>>
+    interval : MutableRefObject<number>,
+    setData : React.Dispatch<React.SetStateAction<Data>>
 }
 
 const Timer = ({
-    currentMinutes, 
-    setCurrentMinutes, 
+    minutes, 
+    setMinutes, 
     defaultMinutes, 
-    breakBonus, 
+    bonus, 
     overtimeRatio,
-    setRefresh} : TimerTypes) => {
+    interval,
+    setData} : TimerTypes) => {
 
+    const defaultSeconds = 5;
     const status = {paused: "PAUSED", running: "RUNNING", overtime: "OVERTIME", break: "BREAK"};
     const [phase, setPhase] = useState(status.paused);
-    const [currentSeconds, setCurrentSeconds] = useState(5);
-    const [overtimeSeconds, setOvertimeSeconds] = useState(0);
-    const [overtimeMinutes, setOvertimeMinutes] = useState(0);
-    const [breakSeconds, setBreakSeconds] = useState(0);
-    const [breakMinutes, setBreakMinutes] = useState(0);
-    const interval = useRef<number | null>(null);
+    const [seconds, setSeconds] = useState(defaultSeconds);
     const timeStamp = useRef<Date | null>(null);
 
-    // setCurrentMinutes is a prop from App, so I use it separately from other setters
-    // since it'll try to render App while rendering Timer. useEffect prevents that.
-    useEffect(()=>{
-        if (currentSeconds === 59) {
-            setCurrentMinutes(m => m - 1);
-        }
-    }, [currentSeconds]);
-
     const handleStyle = () => {
-        let timerStyle;
-        if (phase === status.running) {
-            timerStyle = "running-timer";
-        } else if (phase === status.overtime) {
-            timerStyle = "overtime-timer";
-        } else if (phase === status.paused) {
-            timerStyle = "paused-timer";
-        } else {
-            timerStyle = "break-timer";
+        let s:string;
+        switch(phase) {
+            case status.running:
+                s = "running-timer";
+                break;
+            case status.overtime:
+                s = "overtime-timer";
+                break;
+            case status.paused:
+                s = "paused-timer";
+                break;
+            default:
+                s = "break-timer";
         }
-        return `pure-button timer-button ${timerStyle}`;
-    };
 
-    //get cached values for time spent working/pausing and update them
-    type Data = {
-        worked : number,
-        paused : number
-    }
+        return `pure-button timer-button ${s}`;
+    };
 
     const saveTime = (k:keyof Data) => {
         const now = new Date();
         const key = now.toLocaleDateString("en-US", {dateStyle:"short"});
         const previousData = JSON.parse(localStorage.getItem(key));
         const data:Data = {
-            worked : previousData?.worked ?? 0,
-            paused : previousData?.paused ?? 0
+            work : previousData?.work ?? 0,
+            pause : previousData?.pause ?? 0
         };
         data[k] += now.getTime() - timeStamp.current.getTime();
         localStorage.setItem(key, JSON.stringify(data));
-        setRefresh(1);
-    };
-
-    const handleReset = () => {
-        setPhase(status.paused);
-        saveTime("paused");
-        setCurrentSeconds(5);
-        setCurrentMinutes(defaultMinutes);
-        setOvertimeSeconds(0);
-        setOvertimeMinutes(0); 
-        clearInterval(interval.current);
     };
     
     const handleClick = () => {
-        // State is asynchronous so I use "p" instead of "phase" to run the logic inside setInterval
-        // I still need "phase" to re-render the timer with styles for different phases
-        let p:string;
-        const workTime = () => {
+        // State inside setInterval is only read at the first execution, setting state is async
+        // It's cleaner to use p, s, m to run the logic and set the state all at once at the end
+        let p:string = phase;
+        let s:number = seconds;
+        let m:number = minutes;
+
+        const time = () => {
+            const countdown = () => {
+                if (s) {
+                    s--;
+                } else {
+                    m--;
+                    s = 59;
+                }
+            };
+
             if (p === status.running) {
-                setCurrentSeconds(s => {
-                    if (s === 0) {
-                        if (currentMinutes > 0) {
-                            return 59;
-                        } else {
-                            p = status.overtime;
-                            setPhase(p);
-                            setOvertimeSeconds(1);
-                            setBreakMinutes(brM => brM + breakBonus);
-                            return 0;
-                        }
-                    } else {
-                        return s - 1;
-                    }
-                });
+                if (s || m) {
+                    countdown();
+                } else {
+                    s = 1;
+                    p = status.overtime;
+                }
             } else if (p === status.overtime) {
-                setOvertimeSeconds(boS => {    
-                    if (boS === 59) {
-                        setOvertimeMinutes(boM => boM + 1);
-                        return 0;
-                    } else {
-                        return boS + 1;
-                    }
-                });
-                setBreakSeconds(brS => {
-                    let maxSeconds = brS + overtimeRatio;
-                    if (maxSeconds > 60) {
-                        setBreakMinutes(brM => brM + 1);
-                        return maxSeconds - 60;
-                    } else {
-                        return brS + overtimeRatio;
-                    }
-                });
-            } 
-        };
-        
-        const breakTime = () => {
-            if (p === status.break) {
-                setBreakSeconds(brS => {
-                    if (brS < 1) {
-                        if (breakMinutes > 0) {
-                            setBreakMinutes(brM => brM - 1);
-                            return 59;
-                        } else {
-                            handleReset();
-                            return 0;
-                        }
-                    } else {
-                        return brS - 1;
-                    }
-                });
+                if (s === 59) {
+                    s = 0;
+                    m++;
+                } else {
+                    s++;
+                }
+            } else if (p === status.break) {
+                if (s || m) {
+                    countdown();
+                } else {
+                    p = status.paused;
+                    s = defaultSeconds;
+                    m = defaultMinutes;
+                    clearInterval(interval.current);
+                }
             }
+
+            setPhase(p);
+            setSeconds(s);
+            setMinutes(m);
         };
 
-        if (phase === status.paused) {     
-            p = status.running; 
-            setPhase(p);
+        const calculateBreak = () => {
+            let m = bonus;
+            let s = overtimeRatio * (new Date().getTime() - timeStamp.current.getTime())/1000;
+            while (s > 59) {
+                m++;
+                s -= 60;
+            }
+            return [m, Math.floor(s)];
+        };
+
+        const timeSpent = (t:number) => {
+            const now = new Date();
+            return t + now.getTime() - timeStamp.current.getTime();
+        };
+
+        const stopTimer = (s:string) => {
+            clearInterval(interval.current);
+            setData(d => {
+                if (s === "work") {
+                    return {work: timeSpent(d.work), pause: d.pause};
+                } else if (s === "pause") {
+                    return {work: d.work, pause: timeSpent(d.pause)};
+                }
+            });
+        };
+
+        const startTimer = () => {
             timeStamp.current = new Date();
-            interval.current = window.setInterval(workTime, 1000);
+            interval.current = window.setInterval(time, 1000);
+        };
+
+        // setInterval creates a list of dependencies (p, m, s, ...) for the interval function
+        // The interval function cannot read changes to those dependencies happening outside of it
+        // When that happens clear and set a new interval, which will use updated dependencies
+        if (phase === status.paused) {
+            p = status.running;
+            startTimer();
         } else if (phase === status.running) {
-            clearInterval(interval.current);
             p = status.paused;
-            setPhase(p);
-            saveTime("worked");
+            stopTimer("work");
         } else if (phase === status.overtime) {
-            clearInterval(interval.current);
             p = status.break;
-            setPhase(p);
-            saveTime("worked");
-            timeStamp.current = new Date();
-            interval.current = window.setInterval(breakTime, 1000);
+            [m, s] = calculateBreak();
+            stopTimer("work");
+            startTimer();
         } else {
-            handleReset();
+            p = status.paused;
+            s = defaultSeconds;
+            m = defaultMinutes;
+            stopTimer("pause");
         }
+
+        setPhase(p);
+        setSeconds(s);
+        setMinutes(m);
     };
 
     const handleResult = () => {
-        if (phase === status.running || phase === status.paused) {
-            return currentMinutes.toLocaleString("en-us", {minimumIntegerDigits : 2}) + " : " +
-                currentSeconds.toLocaleString("en-us", {minimumIntegerDigits: 2});
-        } else if (phase === status.overtime) {
-            return overtimeMinutes.toLocaleString("en-us", {minimumIntegerDigits : 2}) + " : " +
-                overtimeSeconds.toLocaleString("en-us", {minimumIntegerDigits: 2});
-        } else if (phase === status.break) {
-            return breakMinutes.toLocaleString("en-us", {minimumIntegerDigits : 2}) + " : " +
-                Math.floor(breakSeconds).toLocaleString("en-us", {minimumIntegerDigits: 2});
-        }
+        return minutes.toLocaleString("en-us", {minimumIntegerDigits : 2}) + " : " +
+            Math.floor(seconds).toLocaleString("en-us", {minimumIntegerDigits: 2});
     };
 
     return (

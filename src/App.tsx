@@ -1,26 +1,35 @@
-import React, {useState} from "react";
+import React, {useState, useRef} from "react";
 import Timer from "./Timer";
 import Settings from "./Settings";
 import History from "./History";
 import Nav from "./Nav";
 
 const App = () =>{
-    const [defaultMinutes, setDefaultMinutes] = useState(0);
-    const [currentMinutes, setCurrentMinutes] = useState(defaultMinutes);
+    // toggle between History and Settings
     const [active, setActive] = useState(false);
-    const [breakBonus, setBreakBonus] = useState(5);
+    
+    // settings variables
+    const [defaultMinutes, setDefaultMinutes] = useState(0);
+    const [minutes, setMinutes] = useState(defaultMinutes);
+    const [bonus, setBonus] = useState(5);
     const [overtimeRatio, setOvertimeRatio] = useState(0.2);
-    const [refresh, setRefresh] = useState(0);
+    
+    // interval id that runs the timer
+    const interval = useRef<number | null>(null);
+    
+    // usage data to populate History
+    const [data, setData] = useState({work: 0, pause: 0});
 
     return ( 
         <>
             <h1>Pomodoro Timer</h1>
-            <Timer currentMinutes={currentMinutes}
-                setCurrentMinutes={setCurrentMinutes} 
+            <Timer minutes={minutes}
+                setMinutes={setMinutes} 
                 defaultMinutes={defaultMinutes}
-                breakBonus={breakBonus}
+                bonus={bonus}
                 overtimeRatio={overtimeRatio}
-                setRefresh={setRefresh} />
+                interval ={interval}
+                setData = {setData} />
             <div style={{height: "50px"}} />
             <div className="pure-g">
                 <div className="pure-u-1-12 pure-u-md-1-4" />
@@ -31,13 +40,13 @@ const App = () =>{
                     {
                         active ? <Settings defaultMinutes={defaultMinutes}
                             setDefaultMinutes={setDefaultMinutes}
-                            setCurrentMinutes={setCurrentMinutes}
-                            breakBonus={breakBonus}
-                            setBreakBonus={setBreakBonus}
+                            setMinutes={setMinutes}
+                            bonus={bonus}
+                            setBonus={setBonus}
                             overtimeRatio={overtimeRatio}
-                            setOvertimeRatio={setOvertimeRatio} />
-                        : <History refresh={refresh}
-                            setRefresh={setRefresh} />
+                            setOvertimeRatio={setOvertimeRatio}
+                            interval={interval} />
+                        : <History />
                     } 
                 </div>
                 <div className="pure-u-1-12 pure-u-md-1-4" />

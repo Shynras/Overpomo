@@ -1,19 +1,11 @@
 import React, {useEffect} from "react";
 
 type Data = {
-    worked: number,
-    paused: number
+    work: number,
+    pause: number
 }
 
-type Refresh = {
-    refresh: number
-    setRefresh: React.Dispatch<React.SetStateAction<number>>
-}
-
-const History = ({refresh, setRefresh}:Refresh) => {
-    //Timer creates new data, saves it in cache, ask History to refresh
-    useEffect(()=>{setRefresh(0)},[refresh]);
-
+const History = () => {
     //retrieve and parse data from last 7 days from cache
     const lastSevenDays = () => {
         const today = new Date();
@@ -26,11 +18,11 @@ const History = ({refresh, setRefresh}:Refresh) => {
         return data;
     };
 
-    const generateDay = (k:number, worked:number, paused:number, hGraph:number) => {
+    const generateDay = (k:number, work:number, pause:number, hGraph:number) => {
         return (
             <div className="day pure-u-1-8" key={k} style={{height: hGraph}}>
-                <div className="break" style={{height: paused}} />
-                <div className="work" style={{height: worked}} />
+                <div className="break" style={{height: pause}} />
+                <div className="work" style={{height: work}} />
             </div>
         );
     };
@@ -39,12 +31,12 @@ const History = ({refresh, setRefresh}:Refresh) => {
     const generateWeek = (data:Data[]) => {
         const hGraph = 200;
         const week:React.ReactElement[] = [];
-        const maxWeekN = Math.max(...data.map(obj => (obj?.worked ?? 0) + (obj?.paused ?? 0)), 1);
+        const maxWeekN = Math.max(...data.map(obj => (obj?.work ?? 0) + (obj?.pause ?? 0)), 1);
         const maxH = hGraph * 0.9;
         for (let k = 6; k >= 0; k--) {
-            const worked = (data[k]?.worked ?? 0) * maxH / maxWeekN;
-            const paused = (data[k]?.paused ?? 0) * maxH / maxWeekN; 
-            week.push(generateDay(k, worked, paused, hGraph));
+            const work = (data[k]?.work ?? 0) * maxH / maxWeekN;
+            const pause = (data[k]?.pause ?? 0) * maxH / maxWeekN; 
+            week.push(generateDay(k, work, pause, hGraph));
         }
         return week;
     };
