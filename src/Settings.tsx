@@ -1,25 +1,31 @@
-import React, {useEffect, useState, Dispatch, SetStateAction, MutableRefObject} from "react";
+import React, {useState, Dispatch, SetStateAction} from "react";
+
+type Time = {
+    p: string,
+    s: number,
+    m: number
+}
 
 type SettingsTypes = {
     defaultMinutes : number,
     setDefaultMinutes : Dispatch<SetStateAction<number>>,
-    setMinutes : Dispatch<SetStateAction<number>>,
+    setTime : Dispatch<SetStateAction<Time>>,
     bonus : number,
     setBonus : Dispatch<SetStateAction<number>>,
     overtimeRatio : number,
     setOvertimeRatio : Dispatch<SetStateAction<number>>,
-    interval : MutableRefObject<number>
+    phase : {[id:string]:string},
 }
 
 const Settings = ({
     defaultMinutes, 
     setDefaultMinutes,
-    setMinutes, 
+    setTime, 
     bonus, 
     setBonus, 
     overtimeRatio, 
     setOvertimeRatio,
-    interval} : SettingsTypes) => {
+    phase} : SettingsTypes) => {
     
     // overtimeRatio is a number, it doesn't save dots, Number("0.") becomes "0", 
     // so you need ratio to update the float on screen while the user is typing
@@ -28,6 +34,10 @@ const Settings = ({
     const handleRatioChange = (e:React.ChangeEvent<HTMLInputElement>) => {
         const s = e.target.value;
         const n = Number(s);
+        setTime(time => {
+            time.p = phase.paused;
+            return time;
+        });
 
         if (n >= 0 && n <= 1) {
             setOvertimeRatio(n);
@@ -43,14 +53,27 @@ const Settings = ({
 
     const handleMinutesChange = (e:React.ChangeEvent<HTMLInputElement>) => {
         let n = Number(e.target.value);
+        setTime(time => {
+            time.p = phase.paused;
+            return time;
+        });
+
         if (posMaxInt(n, 999)) {
             setDefaultMinutes(n);
-            setMinutes(n);
+            setTime(time => {
+                time.m = n;
+                return time;
+            });
         }
     };
 
     const handleBonusChange = (e:React.ChangeEvent<HTMLInputElement>) => {
-        let n = Number(e.target.value)
+        let n = Number(e.target.value);
+        setTime(time => {
+            time.p = phase.paused;
+            return time;
+        });
+
         if (posMaxInt(n, 999)) {
             setBonus(n);
         }

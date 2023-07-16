@@ -1,52 +1,42 @@
-import React, {useState, useRef, MutableRefObject} from "react";
+import React, {useState, useRef} from "react";
+import Settings from "./Settings";
+import History from "./History";
+import Nav from "./Nav";
 
 type Data = {
     work : number,
     pause : number
 }
 
-type TimerTypes = {
-    minutes : number, 
-    setMinutes : React.Dispatch<React.SetStateAction<number>>,
-    defaultMinutes : number, 
-    bonus : number, 
-    overtimeRatio : number,
-    interval : MutableRefObject<number>,
-    setData : React.Dispatch<React.SetStateAction<Data>>
-}
-
-const Timer = ({
-    minutes, 
-    setMinutes, 
-    defaultMinutes, 
-    bonus, 
-    overtimeRatio,
-    interval,
-    setData} : TimerTypes) => {
-
+const Timer = () => {
+    const [active, setActive] = useState(false);
+    const interval = useRef<number | null>(null);
+    const phase = {paused: "PAUSED", running: "RUNNING", overtime: "OVERTIME", break: "BREAK"};
     const defaultSeconds = 5;
-    const status = {paused: "PAUSED", running: "RUNNING", overtime: "OVERTIME", break: "BREAK"};
-    const [phase, setPhase] = useState(status.paused);
-    const [seconds, setSeconds] = useState(defaultSeconds);
+    const [defaultMinutes, setDefaultMinutes] = useState(0);
+    const [time, setTime] = useState({p: phase.paused, s: defaultSeconds, m: defaultMinutes});
+    const [overtimeRatio, setOvertimeRatio] = useState(0.2);
+    const [bonus, setBonus] = useState(5);
     const timeStamp = useRef<Date | null>(null);
+    const [data, setData] = useState({work: 0, pause: 0});
 
     const handleStyle = () => {
-        let s:string;
-        switch(phase) {
-            case status.running:
-                s = "running-timer";
+        let c:string;
+        switch(time.p) {
+            case phase.running:
+                c = "running-timer";
                 break;
-            case status.overtime:
-                s = "overtime-timer";
+            case phase.overtime:
+                c = "overtime-timer";
                 break;
-            case status.paused:
-                s = "paused-timer";
+            case phase.paused:
+                c = "paused-timer";
                 break;
             default:
-                s = "break-timer";
+                c = "break-timer";
         }
 
-        return `pure-button timer-button ${s}`;
+        return `pure-button timer-button ${c}`;
     };
 
     const saveTime = (k:keyof Data) => {
@@ -62,50 +52,43 @@ const Timer = ({
     };
     
     const handleClick = () => {
-        // State inside setInterval is only read at the first execution, setting state is async
-        // It's cleaner to use p, s, m to run the logic and set the state all at once at the end
-        let p:string = phase;
-        let s:number = seconds;
-        let m:number = minutes;
+        const counter = () => {
+            setTime(time => {
+                const countdown = () => {
+                    if (time.s) {
+                        time.s--;
+                    } else {
+                        time.m--;
+                        time.s = 59;
+                    }
+                };
 
-        const time = () => {
-            const countdown = () => {
-                if (s) {
-                    s--;
-                } else {
-                    m--;
-                    s = 59;
+                if (time.p === phase.running) {
+                    if (time.s || time.m) {
+                        countdown();
+                    } else {
+                        time.s = 1;
+                        time.p = phase.overtime;
+                    }
+                } else if (time.p === phase.overtime) {
+                    if (time.s === 59) {
+                        time.s = 0;
+                        time.m++;
+                    } else {
+                        time.s++;
+                    }
+                } else if (time.p === phase.break) {
+                    if (time.s || time.m) {
+                        countdown();
+                    } else {
+                        time.p = phase.paused;
+                        time.s = defaultSeconds;
+                        time.m = defaultMinutes;
+                        clearInterval(interval.current);
+                    }
                 }
-            };
-
-            if (p === status.running) {
-                if (s || m) {
-                    countdown();
-                } else {
-                    s = 1;
-                    p = status.overtime;
-                }
-            } else if (p === status.overtime) {
-                if (s === 59) {
-                    s = 0;
-                    m++;
-                } else {
-                    s++;
-                }
-            } else if (p === status.break) {
-                if (s || m) {
-                    countdown();
-                } else {
-                    p = status.paused;
-                    s = defaultSeconds;
-                    m = defaultMinutes;
-                    clearInterval(interval.current);
-                }
-            }
-
-            setPhase(p);
-            setSeconds(s);
-            setMinutes(m);
+                return {p : time.p, s : time.s, m : time.m};
+            });
         };
 
         const calculateBreak = () => {
@@ -136,48 +119,70 @@ const Timer = ({
 
         const startTimer = () => {
             timeStamp.current = new Date();
-            interval.current = window.setInterval(time, 1000);
+            interval.current = window.setInterval(counter, 1000);
         };
 
         // setInterval creates a list of dependencies (p, m, s, ...) for the interval function
         // The interval function cannot read changes to those dependencies happening outside of it
         // When that happens clear and set a new interval, which will use updated dependencies
-        if (phase === status.paused) {
-            p = status.running;
-            startTimer();
-        } else if (phase === status.running) {
-            p = status.paused;
-            stopTimer("work");
-        } else if (phase === status.overtime) {
-            p = status.break;
-            [m, s] = calculateBreak();
-            stopTimer("work");
-            startTimer();
-        } else {
-            p = status.paused;
-            s = defaultSeconds;
-            m = defaultMinutes;
-            stopTimer("pause");
-        }
-
-        setPhase(p);
-        setSeconds(s);
-        setMinutes(m);
+        setTime(time => {
+            if (time.p === phase.paused) {
+                time.p = phase.running;
+                startTimer();
+            } else if (time.p === phase.running) {
+                time.p = phase.paused;
+                stopTimer("work");
+            } else if (time.p === phase.overtime) {
+                time.p = phase.break;
+                [time.m, time.s] = calculateBreak();
+                stopTimer("work");
+                startTimer();
+            } else {
+                time.p = phase.paused;
+                time.s = defaultSeconds;
+                time.m = defaultMinutes;
+                stopTimer("pause");
+            }
+            return {p : time.p, s : time.s, m : time.m};
+        });
     };
 
     const handleResult = () => {
-        return minutes.toLocaleString("en-us", {minimumIntegerDigits : 2}) + " : " +
-            Math.floor(seconds).toLocaleString("en-us", {minimumIntegerDigits: 2});
+        return time.m.toLocaleString("en-us", {minimumIntegerDigits : 2}) + " : " +
+            Math.floor(time.s).toLocaleString("en-us", {minimumIntegerDigits: 2});
     };
 
     return (
-        <button 
-            type="button" 
-            className={handleStyle()}
-            onClick={handleClick}>
-            <span className="phase">{phase}</span><br />
-            <span className="time">{handleResult()}</span>
-        </button>
+        <>
+            <button 
+                type="button" 
+                className={handleStyle()}
+                onClick={handleClick}>
+                <span className="phase">{time.p}</span><br />
+                <span className="time">{handleResult()}</span>
+            </button>
+            <div style={{height: "50px"}} />
+            <div className="pure-g">
+                <div className="pure-u-1-12 pure-u-md-1-4" />
+                <div className="pure-g pure-u-20-24 pure-u-md-1-2" 
+                    style={{backgroundColor:"#333333", color: "#ffffff"}}>
+                    <Nav active={active}
+                        setActive={setActive} />
+                    {
+                        active ? <Settings defaultMinutes={defaultMinutes}
+                            setDefaultMinutes={setDefaultMinutes}
+                            setTime={setTime}
+                            bonus={bonus}
+                            setBonus={setBonus}
+                            overtimeRatio={overtimeRatio}
+                            setOvertimeRatio={setOvertimeRatio}
+                            phase={phase} />
+                        : <History />
+                    } 
+                </div>
+                <div className="pure-u-1-12 pure-u-md-1-4" />
+            </div>
+        </>
     );
 };
 
