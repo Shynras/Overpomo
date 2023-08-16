@@ -64,7 +64,8 @@ input {
   display: flex;
   justify-content: flex-end;
   flex-direction: column;
-  border: 1px solid black;
+  outline: 1px solid black;
+  width: 14.2857%;
 
   .break {
     background-color: cyan;
