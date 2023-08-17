@@ -20,7 +20,7 @@ const History = () => {
 
     const generateDay = (k:number, work:number, pause:number, hGraph:number) => {
         return (
-            <div className="day pure-u-1-7" key={k} style={{height: hGraph}}>
+            <div className="day" key={k} style={{height: hGraph}}>
                 <div className="break" style={{height: pause}} />
                 <div className="work" style={{height: work}} />
             </div>

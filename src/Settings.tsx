@@ -14,7 +14,7 @@ type SettingsTypes = {
     setBonus : Dispatch<SetStateAction<number>>,
     overtimeRatio : number,
     setOvertimeRatio : Dispatch<SetStateAction<number>>,
-    phase : {[id:string]:string},
+    phase : {[id:string]:string}
 }
 
 const Settings = ({
@@ -35,8 +35,7 @@ const Settings = ({
         const s = e.target.value;
         const n = Number(s);
         setTime(time => {
-            time.p = phase.paused;
-            return time;
+            return {p : phase.paused, s : time.s, m : time.m};
         });
 
         if (n >= 0 && n <= 1) {
@@ -53,16 +52,10 @@ const Settings = ({
 
     const handleMinutesChange = (e:React.ChangeEvent<HTMLInputElement>) => {
         let n = Number(e.target.value);
-        setTime(time => {
-            time.p = phase.paused;
-            return time;
-        });
-
         if (posMaxInt(n, 999)) {
             setDefaultMinutes(n);
             setTime(time => {
-                time.m = n;
-                return time;
+                return {p : phase.paused, s : time.s, m : n};
             });
         }
     };
@@ -70,8 +63,7 @@ const Settings = ({
     const handleBonusChange = (e:React.ChangeEvent<HTMLInputElement>) => {
         let n = Number(e.target.value);
         setTime(time => {
-            time.p = phase.paused;
-            return time;
+            return {p : phase.paused, s : time.s, m : time.m};
         });
 
         if (posMaxInt(n, 999)) {
