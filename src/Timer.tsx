@@ -50,78 +50,87 @@ const Timer = () => {
         data[k] += now.getTime() - timeStamp.current.getTime();
         localStorage.setItem(key, JSON.stringify(data));
     };
-    
-    const handleClick = () => {
-        const counter = () => {
-            setTime(time => {
-                const countdown = () => {
-                    if (time.s) {
-                        time.s--;
-                    } else {
-                        time.m--;
-                        time.s = 59;
-                    }
-                };
 
-                if (time.p === phase.running) {
-                    if (time.s || time.m) {
-                        countdown();
-                    } else {
-                        time.s = 1;
-                        time.p = phase.overtime;
-                    }
-                } else if (time.p === phase.overtime) {
-                    if (time.s === 59) {
-                        time.s = 0;
-                        time.m++;
-                    } else {
-                        time.s++;
-                    }
-                } else if (time.p === phase.break) {
-                    if (time.s || time.m) {
-                        countdown();
-                    } else {
-                        time.p = phase.paused;
-                        time.s = defaultSeconds;
-                        time.m = defaultMinutes;
-                        clearInterval(interval.current);
-                    }
+    const counter = () => {
+        setTime(time => {
+            const countdown = () => {
+                if (time.s) {
+                    time.s--;
+                } else {
+                    time.m--;
+                    time.s = 59;
                 }
-                return {p : time.p, s : time.s, m : time.m};
-            });
-        };
+            };
 
-        const calculateBreak = () => {
-            let m = bonus;
-            let s = overtimeRatio * (new Date().getTime() - timeStamp.current.getTime())/1000;
-            while (s > 59) {
-                m++;
-                s -= 60;
+            if (time.p === phase.running) {
+                if (time.s || time.m) {
+                    countdown();
+                } else {
+                    time.s = 1;
+                    time.p = phase.overtime;
+                }
+            } else if (time.p === phase.overtime) {
+                if (time.s === 59) {
+                    time.s = 0;
+                    time.m++;
+                } else {
+                    time.s++;
+                }
+            } else if (time.p === phase.break) {
+                if (time.s || time.m) {
+                    countdown();
+                } else {
+                    clearInterval(interval.current);
+                    time.p = phase.paused;
+                    time.s = defaultSeconds;
+                    time.m = defaultMinutes;
+                }
             }
-            return [m, Math.floor(s)];
-        };
+            return {p : time.p, s : time.s, m : time.m};
+        });
+    };
 
-        const timeSpent = (t:number) => {
-            const now = new Date();
-            return t + now.getTime() - timeStamp.current.getTime();
-        };
+    const startTimer = () => {
+        timeStamp.current = new Date();
+        interval.current = window.setInterval(counter, 1000);
+    };
 
-        const stopTimer = (s:string) => {
-            clearInterval(interval.current);
+    const timeSpent = (t:number) => {
+        const now = new Date();
+        return t + now.getTime() - timeStamp.current.getTime();
+    };
+
+    const stopTimer = () => {
+        clearInterval(interval.current);
+        if (time.p === phase.break) {
             setData(d => {
-                if (s === "work") {
-                    return {work: timeSpent(d.work), pause: d.pause};
-                } else if (s === "pause") {
-                    return {work: d.work, pause: timeSpent(d.pause)};
-                }
+                return {work: d.work, pause: timeSpent(d.pause)};
             });
-        };
+        } else if (time.p === phase.overtime) {
+            // t has to be saved in advance because startTimer overwrites timestamp in handleClick
+            // setData happen after that, so it would take the new timestamp instead of the old one 
+            const t = timeSpent(data.work); 
+            setData(d => {
+                return {work: t, pause: d.pause};
+            });
+        } else {
+            setData(d => {
+                return {work: timeSpent(d.work), pause: d.pause};
+            });
+        }
+    };
 
-        const startTimer = () => {
-            timeStamp.current = new Date();
-            interval.current = window.setInterval(counter, 1000);
-        };
+    const calculateBreak = () => {
+        let m = bonus;
+        let s = overtimeRatio * (new Date().getTime() - timeStamp.current.getTime())/1000;
+        while (s > 59) {
+            m++;
+            s -= 60;
+        }
+        return [m, Math.floor(s)];
+    };
 
+    const handleClick = () => {
         // setInterval creates a list of dependencies (p, m, s, ...) for the interval function
         // The interval function cannot read changes to those dependencies happening outside of it
         // When that happens clear and set a new interval, which will use updated dependencies
@@ -130,19 +139,23 @@ const Timer = () => {
                 time.p = phase.running;
                 startTimer();
             } else if (time.p === phase.running) {
+                stopTimer();
                 time.p = phase.paused;
-                stopTimer("work");
             } else if (time.p === phase.overtime) {
+                stopTimer();
                 time.p = phase.break;
                 [time.m, time.s] = calculateBreak();
-                stopTimer("work");
                 startTimer();
             } else {
+                stopTimer(); 
                 time.p = phase.paused;
                 time.s = defaultSeconds;
                 time.m = defaultMinutes;
-                stopTimer("pause");
             }
+            setData(d => {
+                console.log(d);
+                return d;
+            })
             return {p : time.p, s : time.s, m : time.m};
         });
     };
@@ -176,7 +189,8 @@ const Timer = () => {
                             setBonus={setBonus}
                             overtimeRatio={overtimeRatio}
                             setOvertimeRatio={setOvertimeRatio}
-                            phase={phase} />
+                            phase={phase}
+                            stopTimer={stopTimer} />
                         : <History />
                     } 
                 </div>

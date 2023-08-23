@@ -14,7 +14,8 @@ type SettingsTypes = {
     setBonus : Dispatch<SetStateAction<number>>,
     overtimeRatio : number,
     setOvertimeRatio : Dispatch<SetStateAction<number>>,
-    phase : {[id:string]:string}
+    phase : {[id:string]:string},
+    stopTimer : () => void
 }
 
 const Settings = ({
@@ -25,7 +26,8 @@ const Settings = ({
     setBonus, 
     overtimeRatio, 
     setOvertimeRatio,
-    phase} : SettingsTypes) => {
+    phase,
+    stopTimer} : SettingsTypes) => {
     
     // overtimeRatio is a number, it doesn't save dots, Number("0.") becomes "0", 
     // so you need ratio to update the float on screen while the user is typing
