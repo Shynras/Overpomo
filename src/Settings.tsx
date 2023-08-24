@@ -36,6 +36,7 @@ const Settings = ({
     const handleRatioChange = (e:React.ChangeEvent<HTMLInputElement>) => {
         const s = e.target.value;
         const n = Number(s);
+        stopTimer();
         setTime(time => {
             return {p : phase.paused, s : time.s, m : time.m};
         });
@@ -56,6 +57,7 @@ const Settings = ({
         let n = Number(e.target.value);
         if (posMaxInt(n, 999)) {
             setDefaultMinutes(n);
+            stopTimer();
             setTime(time => {
                 return {p : phase.paused, s : time.s, m : n};
             });
@@ -64,6 +66,7 @@ const Settings = ({
 
     const handleBonusChange = (e:React.ChangeEvent<HTMLInputElement>) => {
         let n = Number(e.target.value);
+        stopTimer();
         setTime(time => {
             return {p : phase.paused, s : time.s, m : time.m};
         });

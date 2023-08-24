@@ -97,7 +97,8 @@ const Timer = () => {
 
     const timeSpent = (t:number) => {
         const now = new Date();
-        return t + now.getTime() - timeStamp.current.getTime();
+        console.log(timeStamp.current);
+        return t + now.getTime() - timeStamp.current?.getTime();
     };
 
     const stopTimer = () => {
