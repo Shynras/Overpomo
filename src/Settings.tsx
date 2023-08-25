@@ -55,7 +55,7 @@ const Settings = ({
 
     const handleMinutesChange = (e:React.ChangeEvent<HTMLInputElement>) => {
         let n = Number(e.target.value);
-        if (posMaxInt(n, 999)) {
+        if (posMaxInt(n, 99)) {
             setDefaultMinutes(n);
             stopTimer();
             setTime(time => {
