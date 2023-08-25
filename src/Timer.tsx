@@ -19,6 +19,7 @@ const Timer = () => {
     const [bonus, setBonus] = useState(5);
     const timeStamp = useRef<Date | null>(null);
     const [data, setData] = useState({work: 0, pause: 0});
+    const remainingBreak = useRef({s: 0, m: 0});
 
     const handleStyle = () => {
         let c:string;
@@ -97,7 +98,6 @@ const Timer = () => {
 
     const timeSpent = (t:number) => {
         const now = new Date();
-        console.log(timeStamp.current);
         return t + now.getTime() - timeStamp.current?.getTime();
     };
 
@@ -122,13 +122,19 @@ const Timer = () => {
     };
 
     const calculateBreak = () => {
+        // 1) Il problema principale è che non si accumula, e non si accumula 
+        // neanche il bonus fisso nel caso in cui uno decida di accorciare la pausa
+        // Ho bisogno di una variabile che tenga in memoria la pausa cumulata
+        // E' una variabile che non credo di voler memorizzare in cache
+        // 
         let m = bonus;
         let s = overtimeRatio * (new Date().getTime() - timeStamp.current.getTime())/1000;
         while (s > 59) {
             m++;
             s -= 60;
-        }
-        return [m, Math.floor(s)];
+        } 
+        remainingBreak.current.s += Math.floor(s);
+        remainingBreak.current.m += m;
     };
 
     const handleClick = () => {
@@ -145,18 +151,19 @@ const Timer = () => {
             } else if (time.p === phase.overtime) {
                 stopTimer();
                 time.p = phase.break;
-                [time.m, time.s] = calculateBreak();
+                calculateBreak();
+                time.s = remainingBreak.current.s;
+                time.m = remainingBreak.current.m;
                 startTimer();
             } else {
-                stopTimer(); 
+                stopTimer();
+                remainingBreak.current.s = time.s;
+                remainingBreak.current.m = time.m; 
                 time.p = phase.paused;
                 time.s = defaultSeconds;
                 time.m = defaultMinutes;
             }
-            setData(d => {
-                console.log(d);
-                return d;
-            })
+
             return {p : time.p, s : time.s, m : time.m};
         });
     };
