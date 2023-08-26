@@ -3,12 +3,13 @@ import Settings from "./Settings";
 import History from "./History";
 import Nav from "./Nav";
 
-type Data = {
+type TimeSpent = {
     work : number,
     pause : number
 }
 
 const Timer = () => {
+
     const [active, setActive] = useState(false);
     const interval = useRef<number | null>(null);
     const phase = {paused: "PAUSED", running: "RUNNING", overtime: "OVERTIME", break: "BREAK"};
@@ -18,7 +19,7 @@ const Timer = () => {
     const [overtimeRatio, setOvertimeRatio] = useState(0.2);
     const [bonus, setBonus] = useState(5);
     const timeStamp = useRef<Date | null>(null);
-    const [data, setData] = useState({work: 0, pause: 0});
+    const [timeSpent, setTimeSpent] = useState({work: 0, pause: 0});
     const remainingBreak = useRef({s: 0, m: 0});
 
     const handleStyle = () => {
@@ -40,16 +41,16 @@ const Timer = () => {
         return `pure-button timer-button ${c}`;
     };
 
-    const saveTime = (k:keyof Data) => {
+    const saveTime = (k:keyof TimeSpent) => {
         const now = new Date();
         const key = now.toLocaleDateString("en-US", {dateStyle:"short"});
         const previousData = JSON.parse(localStorage.getItem(key));
-        const data:Data = {
+        const timeSpent = {
             work : previousData?.work ?? 0,
             pause : previousData?.pause ?? 0
         };
-        data[k] += now.getTime() - timeStamp.current.getTime();
-        localStorage.setItem(key, JSON.stringify(data));
+        timeSpent[k] += now.getTime() - timeStamp.current.getTime();
+        localStorage.setItem(key, JSON.stringify(timeSpent));
     };
 
     const counter = () => {
@@ -81,7 +82,9 @@ const Timer = () => {
                 if (time.s || time.m) {
                     countdown();
                 } else {
-                    clearInterval(interval.current);
+                    stopTimer();
+                    remainingBreak.current.s = 0;
+                    remainingBreak.current.m = 0;
                     time.p = phase.paused;
                     time.s = defaultSeconds;
                     time.m = defaultMinutes;
@@ -96,7 +99,7 @@ const Timer = () => {
         interval.current = window.setInterval(counter, 1000);
     };
 
-    const timeSpent = (t:number) => {
+    const calculateSpent = (t:number) => {
         const now = new Date();
         return t + now.getTime() - timeStamp.current?.getTime();
     };
@@ -104,29 +107,24 @@ const Timer = () => {
     const stopTimer = () => {
         clearInterval(interval.current);
         if (time.p === phase.break) {
-            setData(d => {
-                return {work: d.work, pause: timeSpent(d.pause)};
+            setTimeSpent(d => {
+                return {work: d.work, pause: calculateSpent(d.pause)};
             });
         } else if (time.p === phase.overtime) {
             // t has to be saved in advance because startTimer overwrites timestamp in handleClick
-            // setData happen after that, so it would take the new timestamp instead of the old one 
-            const t = timeSpent(data.work); 
-            setData(d => {
+            // setTimeSpent happen after that, so it would take the new timestamp instead of the old one 
+            const t = calculateSpent(timeSpent.work); 
+            setTimeSpent(d => {
                 return {work: t, pause: d.pause};
             });
         } else {
-            setData(d => {
-                return {work: timeSpent(d.work), pause: d.pause};
+            setTimeSpent(d => {
+                return {work: calculateSpent(d.work), pause: d.pause};
             });
         }
     };
 
     const calculateBreak = () => {
-        // 1) Il problema principale è che non si accumula, e non si accumula 
-        // neanche il bonus fisso nel caso in cui uno decida di accorciare la pausa
-        // Ho bisogno di una variabile che tenga in memoria la pausa cumulata
-        // E' una variabile che non credo di voler memorizzare in cache
-        // 
         let m = bonus;
         let s = overtimeRatio * (new Date().getTime() - timeStamp.current.getTime())/1000;
         while (s > 59) {

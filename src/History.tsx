@@ -1,11 +1,9 @@
-import React from "react";
-
-type Data = {
-    work: number,
-    pause: number
-}
+import React, {useRef} from "react";
 
 const History = () => {
+    const haveCache = useRef<boolean>(false);
+    const cache = useRef([]);
+
     //retrieve and parse data from last 7 days from cache
     const lastSevenDays = () => {
         const today = new Date();
@@ -18,6 +16,12 @@ const History = () => {
         return data;
     };
 
+    // cache is fetched only once at the first render
+    if (!haveCache.current) {
+        haveCache.current = true;
+        cache.current = lastSevenDays();
+    }
+
     const generateDay = (k:number, work:number, pause:number, hGraph:number) => {
         return (
             <div className="day" key={k} style={{height: hGraph}}>
@@ -28,14 +32,16 @@ const History = () => {
     };
 
     //takes last 7 days cache data, validates values, rescale data to fit graph
-    const generateWeek = (data:Data[]) => {
+    const generateWeek = () => {
         const hGraph = 200;
         const week:React.ReactElement[] = [];
-        const maxWeekN = Math.max(...data.map(obj => (obj?.work ?? 0) + (obj?.pause ?? 0)), 1);
+        const maxWeekN = Math.max(...cache.current.map(
+            obj => (obj?.work ?? 0) + (obj?.pause ?? 0)
+        ), 1);
         const maxH = hGraph * 0.9;
         for (let k = 6; k >= 0; k--) {
-            const work = (data[k]?.work ?? 0) * maxH / maxWeekN;
-            const pause = (data[k]?.pause ?? 0) * maxH / maxWeekN; 
+            const work = (cache.current[k]?.work ?? 0) * maxH / maxWeekN;
+            const pause = (cache.current[k]?.pause ?? 0) * maxH / maxWeekN;
             week.push(generateDay(k, work, pause, hGraph));
         }
         return week;
@@ -43,7 +49,7 @@ const History = () => {
 
     return (
         <div className="pure-g">
-            {generateWeek(lastSevenDays())}
+            {generateWeek()}
         </div>
     );
 }
