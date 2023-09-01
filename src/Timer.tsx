@@ -3,11 +3,6 @@ import Settings from "./Settings";
 import History from "./History";
 import Nav from "./Nav";
 
-type TimeSpent = {
-    work : number,
-    pause : number
-}
-
 const Timer = () => {
 
     const [active, setActive] = useState(false);
@@ -15,11 +10,16 @@ const Timer = () => {
     const phase = {paused: "PAUSED", running: "RUNNING", overtime: "OVERTIME", break: "BREAK"};
     const defaultSeconds = 5;
     const [defaultMinutes, setDefaultMinutes] = useState(0);
-    const [time, setTime] = useState({p: phase.paused, s: defaultSeconds, m: defaultMinutes});
+    const [time, setTime] = useState({
+        p: phase.paused,                //timer phase
+        s: defaultSeconds,              //timer seconds
+        m: defaultMinutes,              //timer minutes
+        w: 0,                           //total worked time in current session
+        b: 0                            //total break time in current session
+    });
     const [overtimeRatio, setOvertimeRatio] = useState(0.2);
     const [bonus, setBonus] = useState(5);
     const timeStamp = useRef<Date | null>(null);
-    const [timeSpent, setTimeSpent] = useState({work: 0, pause: 0});
     const remainingBreak = useRef({s: 0, m: 0});
 
     const handleStyle = () => {
@@ -41,18 +41,6 @@ const Timer = () => {
         return `pure-button timer-button ${c}`;
     };
 
-    const saveTime = (k:keyof TimeSpent) => {
-        const now = new Date();
-        const key = now.toLocaleDateString("en-US", {dateStyle:"short"});
-        const previousData = JSON.parse(localStorage.getItem(key));
-        const timeSpent = {
-            work : previousData?.work ?? 0,
-            pause : previousData?.pause ?? 0
-        };
-        timeSpent[k] += now.getTime() - timeStamp.current.getTime();
-        localStorage.setItem(key, JSON.stringify(timeSpent));
-    };
-
     const counter = () => {
         setTime(time => {
             const countdown = () => {
@@ -63,6 +51,12 @@ const Timer = () => {
                     time.s = 59;
                 }
             };
+
+            if (time.p !== phase.break) {
+                time.w += 1000;
+            } else {
+                time.b += 1000;
+            }
 
             if (time.p === phase.running) {
                 if (time.s || time.m) {
@@ -82,7 +76,7 @@ const Timer = () => {
                 if (time.s || time.m) {
                     countdown();
                 } else {
-                    stopTimer();
+                    clearInterval(interval.current);
                     remainingBreak.current.s = 0;
                     remainingBreak.current.m = 0;
                     time.p = phase.paused;
@@ -90,38 +84,13 @@ const Timer = () => {
                     time.m = defaultMinutes;
                 }
             }
-            return {p : time.p, s : time.s, m : time.m};
+            return {p : time.p, s : time.s, m : time.m, w: time.w, b: time.b};
         });
     };
 
     const startTimer = () => {
         timeStamp.current = new Date();
         interval.current = window.setInterval(counter, 1000);
-    };
-
-    const calculateSpent = (t:number) => {
-        const now = new Date();
-        return t + now.getTime() - timeStamp.current?.getTime();
-    };
-
-    const stopTimer = () => {
-        clearInterval(interval.current);
-        if (time.p === phase.break) {
-            setTimeSpent(d => {
-                return {work: d.work, pause: calculateSpent(d.pause)};
-            });
-        } else if (time.p === phase.overtime) {
-            // t has to be saved in advance because startTimer overwrites timestamp in handleClick
-            // setTimeSpent happen after that, so it would take the new timestamp instead of the old one 
-            const t = calculateSpent(timeSpent.work); 
-            setTimeSpent(d => {
-                return {work: t, pause: d.pause};
-            });
-        } else {
-            setTimeSpent(d => {
-                return {work: calculateSpent(d.work), pause: d.pause};
-            });
-        }
     };
 
     const calculateBreak = () => {
@@ -144,17 +113,17 @@ const Timer = () => {
                 time.p = phase.running;
                 startTimer();
             } else if (time.p === phase.running) {
-                stopTimer();
+                clearInterval(interval.current);
                 time.p = phase.paused;
             } else if (time.p === phase.overtime) {
-                stopTimer();
+                clearInterval(interval.current);
                 time.p = phase.break;
                 calculateBreak();
                 time.s = remainingBreak.current.s;
                 time.m = remainingBreak.current.m;
                 startTimer();
             } else {
-                stopTimer();
+                clearInterval(interval.current);
                 remainingBreak.current.s = time.s;
                 remainingBreak.current.m = time.m; 
                 time.p = phase.paused;
@@ -162,7 +131,7 @@ const Timer = () => {
                 time.m = defaultMinutes;
             }
 
-            return {p : time.p, s : time.s, m : time.m};
+            return {p : time.p, s : time.s, m : time.m, w: time.w, b: time.b};
         });
     };
 
@@ -196,8 +165,8 @@ const Timer = () => {
                             overtimeRatio={overtimeRatio}
                             setOvertimeRatio={setOvertimeRatio}
                             phase={phase}
-                            stopTimer={stopTimer} />
-                        : <History />
+                            interval={interval} />
+                        : <History time={time}/>
                     } 
                 </div>
                 <div className="pure-u-1-12 pure-u-md-1-4" />

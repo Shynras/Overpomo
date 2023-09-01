@@ -3,7 +3,9 @@ import React, {useState, Dispatch, SetStateAction} from "react";
 type Time = {
     p: string,
     s: number,
-    m: number
+    m: number,
+    w: number,
+    b: number
 }
 
 type SettingsTypes = {
@@ -15,7 +17,7 @@ type SettingsTypes = {
     overtimeRatio : number,
     setOvertimeRatio : Dispatch<SetStateAction<number>>,
     phase : {[id:string]:string},
-    stopTimer : () => void
+    interval : React.MutableRefObject<number>
 }
 
 const Settings = ({
@@ -27,7 +29,7 @@ const Settings = ({
     overtimeRatio, 
     setOvertimeRatio,
     phase,
-    stopTimer} : SettingsTypes) => {
+    interval} : SettingsTypes) => {
     
     // overtimeRatio is a number, it doesn't save dots, Number("0.") becomes "0", 
     // so you need ratio to update the float on screen while the user is typing
@@ -36,9 +38,9 @@ const Settings = ({
     const handleRatioChange = (e:React.ChangeEvent<HTMLInputElement>) => {
         const s = e.target.value;
         const n = Number(s);
-        stopTimer();
+        clearInterval(interval.current);
         setTime(time => {
-            return {p : phase.paused, s : time.s, m : time.m};
+            return {p : phase.paused, s : time.s, m : time.m, w: time.w, b: time.b};
         });
 
         if (n >= 0 && n <= 1) {
@@ -57,18 +59,18 @@ const Settings = ({
         let n = Number(e.target.value);
         if (posMaxInt(n, 99)) {
             setDefaultMinutes(n);
-            stopTimer();
+            clearInterval(interval.current);
             setTime(time => {
-                return {p : phase.paused, s : time.s, m : n};
+                return {p : phase.paused, s : time.s, m : n, w: time.w, b: time.b};
             });
         }
     };
 
     const handleBonusChange = (e:React.ChangeEvent<HTMLInputElement>) => {
         let n = Number(e.target.value);
-        stopTimer();
+        clearInterval(interval.current);
         setTime(time => {
-            return {p : phase.paused, s : time.s, m : time.m};
+            return {p : phase.paused, s : time.s, m : time.m, w: time.w, b: time.b};
         });
 
         if (posMaxInt(n, 999)) {
