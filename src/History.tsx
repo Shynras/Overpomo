@@ -43,8 +43,6 @@ const History = ({time, setTime}: HistoryTypes) => {
         todayW: cache.current[0]?.work + time.w, 
         todayB: cache.current[0]?.pause + time.b
     };
-    //const todayW = cache.current[0]?.work + time.w;
-    //const todayB = cache.current[0]?.pause + time.b;
 
     const save = (d:Date = new Date()) => {
         console.log(d);
