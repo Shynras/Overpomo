@@ -4,7 +4,6 @@ import History from "./History";
 import Nav from "./Nav";
 
 const Timer = () => {
-
     const [active, setActive] = useState(false);
     const interval = useRef<number | null>(null);
     const phase = {paused: "PAUSED", running: "RUNNING", overtime: "OVERTIME", break: "BREAK"};
@@ -166,7 +165,8 @@ const Timer = () => {
                             setOvertimeRatio={setOvertimeRatio}
                             phase={phase}
                             interval={interval} />
-                        : <History time={time}/>
+                        : <History time={time}
+                            setTime={setTime} />
                     } 
                 </div>
                 <div className="pure-u-1-12 pure-u-md-1-4" />
