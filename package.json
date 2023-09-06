@@ -5,7 +5,7 @@
   "main": "./src/index.tsx",
   "scripts": {
     "start": "webpack-dev-server .",
-    "build": "Webpack ."
+    "build": "webpack ."
   },
   "author": "Jacopo Fantuzzi",
   "license": "ISC",
