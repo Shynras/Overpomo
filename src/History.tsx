@@ -18,7 +18,6 @@ const History = ({time, setTime}: HistoryTypes) => {
     const cache = useRef([]);
     const startingDay = useRef(new Date());
     const todayStats = useRef({todayW: 0, todayB: 0});
-    const currentDay = new Date();
 
     //retrieve and parse data from last 7 days from cache
     const lastSevenDays = () => {
@@ -32,7 +31,6 @@ const History = ({time, setTime}: HistoryTypes) => {
         return data;
     };
 
-    // cache is fetched only once at the first render
     if (!haveCache.current) {
         haveCache.current = true;
         cache.current = lastSevenDays();
@@ -45,7 +43,6 @@ const History = ({time, setTime}: HistoryTypes) => {
     };
 
     const save = (d:Date = new Date()) => {
-        console.log(d);
         const key = d.toLocaleDateString("en-US", {dateStyle:"short"});
         localStorage.setItem(key, JSON.stringify({work: todayStats.current.todayW, pause: todayStats.current.todayB}));
         haveCache.current = false;
@@ -54,17 +51,17 @@ const History = ({time, setTime}: HistoryTypes) => {
         });
     };
 
-    // automatically saves cache at midnight for current day and reset data for new day
-    if (startingDay.current.getDay() !== currentDay.getDay()) {
-        save(startingDay.current);
-    }
-
-    // EventListeners in react create dependencies for variables needed when created
-    // When the component rerender variables are recreated
-    // The reference the listener has is no longer valid. 
-    // I'm using todayStats useRef so that the reference persist after rerender
-    // Another option would have been to remove and recreate the event listener for each render
+    // Check when next day arrives, save data of previous day and reset
+    const midnightSave = () => {
+        const currentDay = new Date();
+        if (startingDay.current.getDay() !== currentDay.getDay()) {
+            save(startingDay.current);
+            startingDay.current = currentDay;
+        }
+    };
+    
     useEffect(()=> {
+        window.setInterval(midnightSave, 1000);
         window.addEventListener("beforeunload", () => save(), false);
     },[]);
 
