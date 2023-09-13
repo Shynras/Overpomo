@@ -11,4 +11,16 @@ module.exports = merge(common, {
         hot: true ,
         liveReload: true
     },
+    module: {
+        rules: [
+            {
+                test: /\.(css|s[ac]ss)$/i,
+                use: [
+                    'style-loader',
+                    'css-loader',
+                    'sass-loader'
+                ]
+            }
+        ]
+    }
 });

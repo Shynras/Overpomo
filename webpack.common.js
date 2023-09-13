@@ -24,14 +24,6 @@ module.exports = {
                 test: /\.tsx?$/,
                 exclude: /node_modules/,
                 loader: 'ts-loader'
-            },
-            {
-                test: /\.(css|s[ac]ss)$/i,
-                use: [
-                    'style-loader',
-                    'css-loader',
-                    'sass-loader'
-                ]
             }
         ]
     },
