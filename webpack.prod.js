@@ -26,6 +26,10 @@ module.exports = merge(common, {
         new CopyPlugin({
             patterns: [
                 { 
+                    from: "./public/favicon.png", 
+                    to: path.resolve(__dirname, 'dist') 
+                },
+                { 
                     from: "./public/manifest.json", 
                     to: path.resolve(__dirname, 'dist') 
                 },
