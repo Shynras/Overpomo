@@ -28,7 +28,12 @@ module.exports = merge(common, {
                 { 
                     from: "./public/manifest.json", 
                     to: path.resolve(__dirname, 'dist') 
+                },
+                { 
+                    from: "./public/serviceWorker.js", 
+                    to: path.resolve(__dirname, 'dist') 
                 }
+
             ]
         }),
     ]

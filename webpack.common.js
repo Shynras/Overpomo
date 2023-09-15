@@ -27,7 +27,7 @@ module.exports = {
                 loader: 'ts-loader'
             },
             {
-                test: /\.ico$/,
+                test: /\.png$/,
                 type: 'asset/resource'
             }
         ]
