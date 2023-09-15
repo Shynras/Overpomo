@@ -1,6 +1,7 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
+
 module.exports = {
     entry: {
         app: './src/index.tsx',
@@ -10,7 +11,7 @@ module.exports = {
         path: path.resolve(__dirname, 'dist'),
         clean: true,
     },
-    resolve: {                                      // common??
+    resolve: {
         extensions: ['.tsx', '.ts', '.js', '.jsx', '.json'] 
     },
     module: {
@@ -24,6 +25,10 @@ module.exports = {
                 test: /\.tsx?$/,
                 exclude: /node_modules/,
                 loader: 'ts-loader'
+            },
+            {
+                test: /\.ico$/,
+                type: 'asset/resource'
             }
         ]
     },
