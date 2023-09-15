@@ -2,7 +2,7 @@ let CACHE_NAME = 'my-cache-v1';
 const urlsToCache = [
     '/',
     '/manifest.json',
-    '/favicon.png',
+    '/favicon.ico',
     '/main.bundle.js'
 ];
 
