@@ -26,7 +26,7 @@ module.exports = merge(common, {
         new CopyPlugin({
             patterns: [
                 { 
-                    from: "./public/favicon.png", 
+                    from: "./public/favicon.ico", 
                     to: path.resolve(__dirname, 'dist') 
                 },
                 { 
