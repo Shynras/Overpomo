@@ -38,8 +38,8 @@ const History = ({ time, setTime }: HistoryTypes) => {
 
   // total time of work and break for the day
   todayStats.current = {
-    todayW: cache.current[0]?.work + time.w,
-    todayB: cache.current[0]?.pause + time.b,
+    todayW: (cache.current[0]?.work ?? 0) + time.w,
+    todayB: (cache.current[0]?.pause ?? 0) + time.b,
   }
 
   const save = (d: Date = new Date()) => {
