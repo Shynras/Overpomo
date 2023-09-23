@@ -1,9 +1,9 @@
-let CACHE_NAME = 'my-cache-v1';
+let CACHE_NAME = 'pomodoro-v1';
 const urlsToCache = [
-    '/pomodoro/',
-    '/pomodoro/manifest.json',
-    '/pomodoro/favicon.ico',
-    '/pomodoro/main.bundle.js'
+    '/',
+    '/manifest.json',
+    '/favicon.ico',
+    '/main.bundle.js'
 ];
 
 self.addEventListener('install', function(event) {
